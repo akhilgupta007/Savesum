@@ -165,7 +165,7 @@ const ForgotPasswordForm = () => {
           id="email"
           type="email"
           autoComplete="email"
-          placeholder="name@example.com"
+          placeholder="you@company.com"
           value={email}
           disabled={isLoading}
           onChange={(e) => {

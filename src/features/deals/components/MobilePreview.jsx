@@ -70,7 +70,7 @@ const MobilePreview = ({ formData }) => {
               </div>
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search items..."
                 className="w-full pl-6 pr-2 py-1.5 bg-white border border-[#EBEBEB] rounded-lg text-[10px] text-[#0A0A0A] placeholder-[#A0AEC0] outline-none"
                 readOnly
               />

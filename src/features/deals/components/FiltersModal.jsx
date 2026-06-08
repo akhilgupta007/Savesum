@@ -105,7 +105,7 @@ const FiltersModal = ({ isOpen, onClose }) => {
                 <div className="relative">
                   <input 
                     type="text" 
-                    placeholder="dd-mm-yyyy"
+                    placeholder="DD-MM-YYYY"
                     className="w-full px-4 py-3 border border-[#EBEBEB] rounded-xl text-[14px] text-[#0A0A0A] outline-none focus:border-[#005EF8] placeholder-[#A0AEC0]"
                   />
                   <Calendar size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6A7282]" />
@@ -116,7 +116,7 @@ const FiltersModal = ({ isOpen, onClose }) => {
                 <div className="relative">
                   <input 
                     type="text" 
-                    placeholder="dd-mm-yyyy"
+                    placeholder="DD-MM-YYYY"
                     className="w-full px-4 py-3 border border-[#EBEBEB] rounded-xl text-[14px] text-[#0A0A0A] outline-none focus:border-[#005EF8] placeholder-[#A0AEC0]"
                   />
                   <Calendar size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6A7282]" />

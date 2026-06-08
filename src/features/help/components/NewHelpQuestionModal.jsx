@@ -21,7 +21,7 @@ const NewHelpQuestionModal = ({ isOpen, onClose }) => {
             <label className="text-[15px] font-medium text-[#0A0A0A]">Question Title</label>
             <input 
               type="text" 
-              placeholder="e.g., how do I reset my account password?..."
+              placeholder="e.g. How do I reset my account password?"
               className="w-full px-4 py-3 border border-[#EBEBEB] rounded-xl text-[14px] text-[#0A0A0A] placeholder-[#8C8C8C] focus:outline-none focus:border-[#005EF8] transition-colors"
             />
           </div>

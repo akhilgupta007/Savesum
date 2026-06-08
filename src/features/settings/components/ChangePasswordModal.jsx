@@ -13,7 +13,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
             <label className="text-[13px] font-bold text-[#0A0A0A] uppercase">NEW PASSWORD</label>
             <input 
               type="password" 
-              placeholder="*********"
+              placeholder="••••••••"
               className="w-full px-4 py-3 border border-[#EBEBEB] rounded-xl text-[14px] text-[#0A0A0A] focus:outline-none focus:border-[#005EF8] transition-colors"
             />
           </div>
@@ -22,7 +22,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
             <label className="text-[13px] font-bold text-[#0A0A0A] uppercase">CONFIRM PASSWORD</label>
             <input 
               type="password" 
-              placeholder="*********"
+              placeholder="••••••••"
               className="w-full px-4 py-3 border border-[#EBEBEB] rounded-xl text-[14px] text-[#0A0A0A] focus:outline-none focus:border-[#005EF8] transition-colors"
             />
           </div>

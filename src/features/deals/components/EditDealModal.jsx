@@ -36,7 +36,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
               <input 
                 type="text" 
                 defaultValue={deal?.name || ''}
-                placeholder="Eg., Pain relief Caplets"
+                placeholder="e.g. Pain Relief Caplets"
                 className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
               />
             </div>
@@ -58,7 +58,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
               <input 
                 type="text" 
                 defaultValue={deal?.store || ''}
-                placeholder="eg., walmart"
+                placeholder="e.g. Walmart"
                 className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
               />
             </div>
@@ -111,7 +111,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
               <label className="text-[13px] font-semibold text-[#0A0A0A]">Reward Name</label>
               <input 
                 type="text" 
-                placeholder="e.g. ExtraBucks reward"
+                placeholder="e.g. ExtraBucks"
                 className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
               />
             </div>
@@ -139,7 +139,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
                 <div className="relative">
                   <input 
                     type="text" 
-                    placeholder="dd-mm-yyyy"
+                    placeholder="DD-MM-YYYY"
                     className="w-full pl-4 pr-10 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
                   />
                   <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
@@ -153,7 +153,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
                   <input 
                     type="text" 
                     defaultValue={deal?.expiry && deal.expiry !== 'In 24 hrs' ? deal.expiry : ''}
-                    placeholder="dd-mm-yyyy"
+                    placeholder="DD-MM-YYYY"
                     className="w-full pl-4 pr-10 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
                   />
                   <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">

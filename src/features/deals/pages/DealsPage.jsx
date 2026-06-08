@@ -13,7 +13,7 @@ const DealsPage = () => {
           </div>
           <input
             type="text"
-            placeholder="Search for deals..."
+            placeholder="Search by item name, store, or UPC..."
             className="pl-11 pr-4 py-[10px] border border-[#EBEBEB] rounded-xl text-sm text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:ring-2 focus:ring-[#005EF8] w-[320px]"
           />
         </div>

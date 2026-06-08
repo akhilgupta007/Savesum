@@ -37,7 +37,7 @@ const HelpCenterPage = () => {
               </div>
               <input
                 type="text"
-                placeholder="Search for questionss..."
+                placeholder="Search for articles, guides, or topics..."
                 className="pl-11 pr-4 py-[10px] border border-[#EBEBEB] rounded-xl text-[14px] text-[#0A0A0A] placeholder-[#8C8C8C] focus:outline-none focus:ring-2 focus:ring-[#005EF8] w-[360px] font-inter transition-colors"
               />
             </div>

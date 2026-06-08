@@ -42,7 +42,7 @@ const CreateDealForm = ({ formData, setFormData }) => {
               name="name"
               value={formData.name || ''}
               onChange={handleInputChange}
-              placeholder="Eg., Pain relief Caplets"
+              placeholder="e.g. Pain Relief Caplets"
               className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
             />
           </div>
@@ -84,7 +84,7 @@ const CreateDealForm = ({ formData, setFormData }) => {
             name="store"
             value={formData.store || ''}
             onChange={handleInputChange}
-            placeholder="e.g., CVS"
+            placeholder="e.g. CVS"
             className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
           />
         </div>
@@ -183,7 +183,7 @@ const CreateDealForm = ({ formData, setFormData }) => {
               name="rewardName"
               value={formData.rewardName || ''}
               onChange={handleInputChange}
-              placeholder="e.g. ExtraBucks reward"
+              placeholder="e.g. ExtraBucks"
               className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
             />
           </div>
@@ -217,7 +217,7 @@ const CreateDealForm = ({ formData, setFormData }) => {
                 name="startDate"
                 value={formData.startDate || ''}
                 onChange={handleInputChange}
-                placeholder="dd-mm-yyyy"
+                placeholder="DD-MM-YYYY"
                 className="w-full pl-4 pr-10 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
               />
               <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
@@ -233,7 +233,7 @@ const CreateDealForm = ({ formData, setFormData }) => {
                 name="endDate"
                 value={formData.endDate || ''}
                 onChange={handleInputChange}
-                placeholder="dd-mm-yyyy"
+                placeholder="DD-MM-YYYY"
                 className="w-full pl-4 pr-10 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
               />
               <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
