@@ -13,7 +13,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
       ></div>
 
       {/* Modal Container */}
-      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-[700px] max-h-[90vh] overflow-y-auto flex flex-col">
+      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-[700px] mx-4 max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-8 py-6 border-b border-[#EBEBEB]">
           <h2 className="text-[16px] font-bold text-[#0A0A0A] tracking-wider uppercase">
@@ -28,9 +28,9 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
         </div>
 
         {/* Body */}
-        <div className="p-8 flex flex-col gap-6">
+        <div className="p-8 flex flex-col gap-6 overflow-y-auto flex-1">
           {/* Row 1 */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-[13px] font-semibold text-[#0A0A0A]">Product Name</label>
               <input 
@@ -52,7 +52,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
           </div>
 
           {/* Row 2 */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-[13px] font-semibold text-[#0A0A0A]">Store</label>
               <input 
@@ -77,7 +77,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
           </div>
 
           {/* Row 3 */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-[13px] font-semibold text-[#0A0A0A]">Coupon Amount</label>
               <div className="relative">
@@ -92,21 +92,16 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-[13px] font-semibold text-[#0A0A0A]">Coupon Type</label>
-              <select className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] appearance-none bg-white focus:outline-none focus:border-[#005EF8]">
+              <select className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] bg-white focus:outline-none focus:border-[#005EF8]">
                 <option>Select</option>
                 <option>Digital</option>
                 <option>Paper</option>
               </select>
-              <div className="absolute right-12 mt-10 pointer-events-none">
-                <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 1.5L6 6.5L11 1.5" stroke="#6A7282" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
             </div>
           </div>
 
           {/* Row 4 */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-[13px] font-semibold text-[#0A0A0A]">Reward Name</label>
               <input 
@@ -130,7 +125,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
           </div>
 
           {/* Row 5: Complex layout with Dates and Image */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Left side: Dates */}
             <div className="flex flex-col gap-6">
@@ -170,7 +165,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
                 {/* Existing Image Thumbnail */}
                 <div className="w-[120px] bg-[#EBEBEB] rounded-xl overflow-hidden flex-shrink-0">
                   <img 
-                    src={deal?.img || "https://randomuser.me/api/portraits/lego/1.jpg"} 
+                    src={deal?.img || "https://images.unsplash.com/photo-1584308666744-24d5e4b6e58b?w=80&h=80&fit=crop"} 
                     alt="Product" 
                     className="w-full h-full object-cover"
                   />
@@ -193,21 +188,21 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
 
           </div>
 
-          {/* Footer Actions */}
-          <div className="flex items-center gap-4 mt-2">
-            <button 
-              onClick={onClose}
-              className="flex-1 py-3 border border-[#B00020] text-[#B00020] rounded-xl text-[14px] font-semibold hover:bg-red-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button 
-              className="flex-1 py-3 bg-[#005EF8] text-white rounded-xl text-[14px] font-semibold hover:bg-blue-700 transition-colors"
-            >
-              Update Deal
-            </button>
-          </div>
+        </div>
 
+        {/* Footer Actions */}
+        <div className="flex items-center gap-4 px-8 py-6 border-t border-[#EBEBEB] bg-white">
+          <button 
+            onClick={onClose}
+            className="flex-1 py-3 border border-[#B00020] text-[#B00020] rounded-xl text-[14px] font-semibold hover:bg-red-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button 
+            className="flex-1 py-3 bg-[#005EF8] text-white rounded-xl text-[14px] font-semibold hover:bg-blue-700 transition-colors"
+          >
+            Update Deal
+          </button>
         </div>
       </div>
     </div>

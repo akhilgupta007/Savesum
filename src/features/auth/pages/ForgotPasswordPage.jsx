@@ -1,6 +1,8 @@
 import React from 'react';
 import AuthBranding from '../components/AuthBranding';
 import ForgotPasswordForm from '../components/ForgotPasswordForm';
+import logo1 from '@/assets/save_sum_logo_1.svg';
+import logo2 from '@/assets/save_sum_logo_2.svg';
 
 const ForgotPasswordPage = () => {
   return (
@@ -21,6 +23,12 @@ const ForgotPasswordPage = () => {
             padding: '16px 16px 29px',
           }}
         >
+          {/* Mobile Logo */}
+          <div className="flex lg:hidden items-center justify-center gap-3 w-full mb-4">
+            <img src={logo1} alt="Save Sum Logo 1" className="h-[48px] w-auto object-contain" />
+            <img src={logo2} alt="Save Sum Logo 2" className="h-[22px] w-auto object-contain" />
+          </div>
+
           <ForgotPasswordForm />
         </div>
       </div>

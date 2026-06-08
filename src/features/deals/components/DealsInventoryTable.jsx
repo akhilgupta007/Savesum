@@ -30,7 +30,7 @@ const mockDeals = [
     rewards: '$2.00',
     expiry: '24-12-2025',
     status: 'Active',
-    img: 'https://randomuser.me/api/portraits/lego/1.jpg', // dummy image
+    img: 'https://images.unsplash.com/photo-1584308666744-24d5e4b6e58b?w=80&h=80&fit=crop', // professional image
   },
   {
     id: 2,
@@ -43,7 +43,7 @@ const mockDeals = [
     expiry: 'In 24 hrs',
     isExpiryRed: true,
     status: 'Active',
-    img: 'https://randomuser.me/api/portraits/lego/2.jpg',
+    img: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=80&h=80&fit=crop',
   },
   {
     id: 3,
@@ -55,7 +55,7 @@ const mockDeals = [
     rewards: '$2.50',
     expiry: '30-06-2024',
     status: 'Upcoming',
-    img: 'https://randomuser.me/api/portraits/lego/3.jpg',
+    img: 'https://images.unsplash.com/photo-1571781926291-c477ebefa4f7?w=80&h=80&fit=crop',
   },
   {
     id: 4,
@@ -67,7 +67,7 @@ const mockDeals = [
     rewards: '$3.00',
     expiry: '10-12-2025',
     status: 'Active',
-    img: 'https://randomuser.me/api/portraits/lego/4.jpg',
+    img: 'https://images.unsplash.com/photo-1603398938378-e54eab446dde?w=80&h=80&fit=crop',
   },
   {
     id: 5,
@@ -79,7 +79,7 @@ const mockDeals = [
     rewards: '$1.75',
     expiry: '20-08-2024',
     status: 'Upcoming',
-    img: 'https://randomuser.me/api/portraits/lego/5.jpg',
+    img: 'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=80&h=80&fit=crop',
   },
   {
     id: 6,
@@ -91,7 +91,7 @@ const mockDeals = [
     rewards: '$1.50',
     expiry: '15-09-2024',
     status: 'Archived',
-    img: 'https://randomuser.me/api/portraits/lego/6.jpg',
+    img: 'https://images.unsplash.com/photo-1584483768567-bea5b4df2768?w=80&h=80&fit=crop',
   },
   {
     id: 7,
@@ -103,7 +103,7 @@ const mockDeals = [
     rewards: '$1.00',
     expiry: '15-03-2026',
     status: 'Active',
-    img: 'https://randomuser.me/api/portraits/lego/7.jpg',
+    img: 'https://images.unsplash.com/photo-1584308666744-24d5e4b6e58b?w=80&h=80&fit=crop',
   },
 ];
 
@@ -180,22 +180,22 @@ const DealsInventoryTable = () => {
       />
 
       {/* Header Row */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4 md:gap-0">
         <h1 className="text-[24px] font-semibold text-[#0A0A0A]">Weekly Deals Inventory</h1>
         
-        <div className="flex items-center gap-3">
-          <button className="w-10 h-10 flex items-center justify-center rounded-lg border border-[#EBEBEB] text-[#6A7282] bg-white hover:bg-gray-50 transition-colors">
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <button className="w-10 h-10 flex items-center justify-center rounded-lg border border-[#EBEBEB] text-[#6A7282] bg-white hover:bg-gray-50 transition-colors shrink-0">
             <Upload size={18} strokeWidth={1.5} />
           </button>
           <button 
             onClick={() => setIsFilterOpen(true)}
-            className="w-10 h-10 flex items-center justify-center rounded-lg border border-[#EBEBEB] text-[#6A7282] bg-white hover:bg-gray-50 transition-colors"
+            className="w-10 h-10 flex items-center justify-center rounded-lg border border-[#EBEBEB] text-[#6A7282] bg-white hover:bg-gray-50 transition-colors shrink-0"
           >
             <Filter size={18} strokeWidth={1.5} />
           </button>
           <button 
             onClick={() => navigate(ROUTES.CREATE_DEAL)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#005EF8] text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#005EF8] text-white text-sm font-medium hover:bg-blue-700 transition-colors flex-1 md:flex-none"
           >
             <Plus size={18} strokeWidth={2} />
             Add Deal
@@ -204,12 +204,12 @@ const DealsInventoryTable = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-8 border-b border-[#EBEBEB] mb-6">
+      <div className="flex items-center gap-8 border-b border-[#EBEBEB] mb-6 overflow-x-auto whitespace-nowrap scrollbar-hide w-full">
         {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`pb-4 text-sm font-medium transition-colors relative ${
+            className={`pb-4 px-2 text-[15px] font-medium transition-colors relative shrink-0 ${
               activeTab === tab ? 'text-[#005EF8]' : 'text-[#6A7282] hover:text-[#0A0A0A]'
             }`}
           >
@@ -260,24 +260,24 @@ const DealsInventoryTable = () => {
                     <StatusBadge status={deal.status} />
                   </td>
                   <td className="py-4 px-6 text-right w-[160px]">
-                    <div className="flex items-center justify-end gap-5">
+                    <div className="flex items-center justify-end gap-2 md:gap-5">
                       <button 
                         onClick={() => setEditingDeal(deal)}
-                        className="text-[#6A7282] hover:text-[#0A0A0A] transition-colors" 
+                        className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors" 
                         title="Edit"
                       >
                         <EditIconCustom />
                       </button>
                       <button 
                         onClick={() => setArchivingDeal(deal)}
-                        className="text-[#6A7282] hover:text-[#0A0A0A] transition-colors" 
+                        className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors" 
                         title="Archive"
                       >
                         <ArchiveIconCustom />
                       </button>
                       <button 
                         onClick={() => setDeletingDeal(deal)}
-                        className="text-[#B00020] hover:text-red-700 transition-colors" 
+                        className="p-2 text-[#B00020] hover:text-red-700 transition-colors" 
                         title="Delete"
                       >
                         <Trash2 size={20} strokeWidth={1.5} />

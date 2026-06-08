@@ -15,10 +15,10 @@ const FiltersModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 font-inter p-4">
-      <div className="bg-white rounded-[20px] w-full max-w-[800px] shadow-2xl overflow-hidden flex flex-col">
+      <div className="bg-white rounded-[20px] w-full max-w-[800px] mx-4 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-8 py-6">
+        <div className="flex items-center justify-between px-8 py-6 border-b border-[#EBEBEB] bg-white">
           <h2 className="text-[20px] font-bold text-[#0A0A0A] tracking-wide uppercase">Filters</h2>
           <button onClick={onClose} className="text-[#0A0A0A] hover:opacity-70 transition-opacity">
             <X size={24} strokeWidth={2} />
@@ -26,7 +26,7 @@ const FiltersModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Content */}
-        <div className="px-8 pb-6 flex flex-col gap-6 overflow-y-auto max-h-[calc(100vh-150px)]">
+        <div className="px-8 py-6 flex flex-col gap-6 overflow-y-auto flex-1">
           
           {/* Active Filter */}
           <div className="flex items-center gap-4 px-6 py-4 border border-[#EBEBEB] rounded-xl">
@@ -63,7 +63,7 @@ const FiltersModal = ({ isOpen, onClose }) => {
           </div>
 
           {/* Grid: Stores & Reward Type */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Stores */}
             <div className="border border-[#EBEBEB] rounded-xl p-6">
@@ -99,14 +99,14 @@ const FiltersModal = ({ isOpen, onClose }) => {
           {/* Date Range */}
           <div className="border border-[#EBEBEB] rounded-xl p-6">
             <h3 className="text-[12px] font-bold text-[#0A0A0A] uppercase tracking-wider mb-4">Date Range</h3>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex flex-col gap-2">
                 <label className="text-[13px] font-bold text-[#0A0A0A]">Start Date</label>
                 <div className="relative">
                   <input 
                     type="text" 
                     placeholder="DD-MM-YYYY"
-                    className="w-full px-4 py-3 border border-[#EBEBEB] rounded-xl text-[14px] text-[#0A0A0A] outline-none focus:border-[#005EF8] placeholder-[#A0AEC0]"
+                    className="w-full px-4 py-3 border border-[#EBEBEB] rounded-xl text-[16px] md:text-[14px] text-[#0A0A0A] outline-none focus:border-[#005EF8] placeholder-[#A0AEC0]"
                   />
                   <Calendar size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6A7282]" />
                 </div>
@@ -117,7 +117,7 @@ const FiltersModal = ({ isOpen, onClose }) => {
                   <input 
                     type="text" 
                     placeholder="DD-MM-YYYY"
-                    className="w-full px-4 py-3 border border-[#EBEBEB] rounded-xl text-[14px] text-[#0A0A0A] outline-none focus:border-[#005EF8] placeholder-[#A0AEC0]"
+                    className="w-full px-4 py-3 border border-[#EBEBEB] rounded-xl text-[16px] md:text-[14px] text-[#0A0A0A] outline-none focus:border-[#005EF8] placeholder-[#A0AEC0]"
                   />
                   <Calendar size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6A7282]" />
                 </div>
@@ -125,22 +125,22 @@ const FiltersModal = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          {/* Footer Actions */}
-          <div className="flex justify-end gap-4 mt-2">
-            <button 
-              onClick={onClose}
-              className="px-8 py-3 rounded-xl border border-[#EBEBEB] text-[14px] font-bold text-[#B00020] hover:bg-red-50 transition-colors"
-            >
-              Clear All
-            </button>
-            <button 
-              onClick={onClose}
-              className="px-8 py-3 rounded-xl bg-[#005EF8] text-[14px] font-bold text-white hover:bg-blue-700 transition-colors shadow-md"
-            >
-              Apply Filters
-            </button>
-          </div>
+        </div>
 
+        {/* Footer Actions */}
+        <div className="flex justify-end gap-4 px-8 py-6 border-t border-[#EBEBEB] bg-white">
+          <button 
+            onClick={onClose}
+            className="px-8 py-3 rounded-xl border border-[#EBEBEB] text-[14px] font-bold text-[#B00020] hover:bg-red-50 transition-colors"
+          >
+            Clear All
+          </button>
+          <button 
+            onClick={onClose}
+            className="px-8 py-3 rounded-xl bg-[#005EF8] text-[14px] font-bold text-white hover:bg-blue-700 transition-colors shadow-md"
+          >
+            Apply Filters
+          </button>
         </div>
 
       </div>

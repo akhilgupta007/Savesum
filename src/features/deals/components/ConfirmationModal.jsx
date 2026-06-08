@@ -12,7 +12,7 @@ const ConfirmationModal = ({ isOpen, onClose, title, description, confirmText, c
       ></div>
 
       {/* Modal Container */}
-      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-[500px] flex flex-col p-8 items-center text-center">
+      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-[500px] mx-4 flex flex-col p-8 items-center text-center">
         
         <h2 className="text-[16px] font-bold text-[#0A0A0A] uppercase mb-4">
           {title}

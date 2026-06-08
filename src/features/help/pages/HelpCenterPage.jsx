@@ -30,27 +30,28 @@ const HelpCenterPage = () => {
           </div>
         </div>
         <div className="bg-white border border-[#EBEBEB] rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-8">
-            <div className="relative">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4 md:gap-0">
+            <div className="relative w-full md:w-auto">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Search size={16} className="text-[#6A7282]" />
               </div>
               <input
                 type="text"
                 placeholder="Search for articles, guides, or topics..."
-                className="pl-11 pr-4 py-[10px] border border-[#EBEBEB] rounded-xl text-[14px] text-[#0A0A0A] placeholder-[#8C8C8C] focus:outline-none focus:ring-2 focus:ring-[#005EF8] w-[360px] font-inter transition-colors"
+                className="pl-11 pr-4 py-3 md:py-[10px] border border-[#EBEBEB] rounded-xl text-[16px] md:text-[14px] text-[#0A0A0A] placeholder-[#8C8C8C] focus:outline-none focus:ring-2 focus:ring-[#005EF8] w-full md:w-[360px] font-inter transition-colors"
               />
             </div>
             <button 
               onClick={() => setIsNewModalOpen(true)}
-              className="flex items-center gap-2 px-5 py-[10px] bg-[#005EF8] rounded-xl text-[14px] text-white font-medium font-inter hover:bg-[#005EF8]/90 transition-colors"
+              className="flex items-center justify-center gap-2 px-5 py-3 md:py-[10px] bg-[#005EF8] rounded-xl text-[14px] text-white font-medium font-inter hover:bg-[#005EF8]/90 transition-colors w-full md:w-auto"
             >
               <Plus size={16} />
               Add New Question
             </button>
           </div>
 
-          <table className="w-full text-left border-collapse font-inter">
+          <div className="w-full overflow-x-auto">
+            <table className="w-full text-left border-collapse font-inter min-w-[500px]">
             <thead>
               <tr className="border-b border-[#EBEBEB]">
                 <th className="py-4 text-[13px] font-semibold text-[#8C8C8C] font-inter w-[40%]">Question Title</th>
@@ -71,10 +72,10 @@ const HelpCenterPage = () => {
                   <td className="py-6 text-[14px] text-[#005EF8] font-medium text-center">{q.date}</td>
                   <td className="py-6">
                     <div className="flex items-center justify-end gap-6 pr-2">
-                      <button onClick={() => setIsEditModalOpen(true)} className="text-[#6A7282] hover:text-[#0A0A0A] transition-colors">
+                      <button onClick={() => setIsEditModalOpen(true)} className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors">
                         <Edit2 size={18} strokeWidth={2} />
                       </button>
-                      <button onClick={() => setIsDeleteModalOpen(true)} className="text-[#EF4444] hover:text-[#DC2626] transition-colors">
+                      <button onClick={() => setIsDeleteModalOpen(true)} className="p-2 text-[#EF4444] hover:text-[#DC2626] transition-colors">
                         <Trash2 size={18} strokeWidth={2} />
                       </button>
                     </div>
@@ -83,6 +84,7 @@ const HelpCenterPage = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 

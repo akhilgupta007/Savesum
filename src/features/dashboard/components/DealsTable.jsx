@@ -28,7 +28,7 @@ const mockDeals = [
     rewards: '$2.00',
     expiry: '24-12-2025',
     status: 'Active',
-    img: 'https://via.placeholder.com/40',
+    img: 'https://images.unsplash.com/photo-1584308666744-24d5e4b6e58b?w=80&h=80&fit=crop',
   },
   {
     id: 2,
@@ -40,7 +40,7 @@ const mockDeals = [
     rewards: '$1.00',
     expiry: '15-03-2026',
     status: 'Active',
-    img: 'https://via.placeholder.com/40',
+    img: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=80&h=80&fit=crop',
   },
   {
     id: 3,
@@ -52,7 +52,7 @@ const mockDeals = [
     rewards: '$1.50',
     expiry: '01-09-2025',
     status: 'Active',
-    img: 'https://via.placeholder.com/40',
+    img: 'https://images.unsplash.com/photo-1571781926291-c477ebefa4f7?w=80&h=80&fit=crop',
   },
   {
     id: 4,
@@ -64,7 +64,7 @@ const mockDeals = [
     rewards: '$2.50',
     expiry: '30-06-2024',
     status: 'Upcoming',
-    img: 'https://via.placeholder.com/40',
+    img: 'https://images.unsplash.com/photo-1603398938378-e54eab446dde?w=80&h=80&fit=crop',
   },
   {
     id: 5,
@@ -76,7 +76,7 @@ const mockDeals = [
     rewards: '$3.00',
     expiry: '10-12-2025',
     status: 'Active',
-    img: 'https://via.placeholder.com/40',
+    img: 'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=80&h=80&fit=crop',
   },
   {
     id: 6,
@@ -88,7 +88,7 @@ const mockDeals = [
     rewards: '$1.75',
     expiry: '20-08-2024',
     status: 'Upcoming',
-    img: 'https://via.placeholder.com/40',
+    img: 'https://images.unsplash.com/photo-1584483768567-bea5b4df2768?w=80&h=80&fit=crop',
   },
 ];
 
@@ -143,32 +143,32 @@ const DealsTable = () => {
         onConfirm={() => setDeletingDeal(null)}
       />
 
-      <div className="flex items-center justify-between p-6 border-b border-[#EBEBEB]">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 md:p-6 border-b border-[#EBEBEB] gap-4 md:gap-0">
         <h2 className="text-[20px] font-semibold text-[#0A0A0A]">Recent Deals</h2>
         
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-3 border border-[#EBEBEB] rounded-full px-4 py-2 bg-white">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-3 w-full md:w-auto">
+          <div className="flex items-center justify-between md:justify-start gap-3 border border-[#EBEBEB] rounded-full px-4 py-2 bg-white w-full md:w-auto">
             <span className="text-[14px] font-medium text-[#0A0A0A]">Live Preview</span>
             <div className="w-10 h-6 bg-[#EBEBEB] rounded-full relative cursor-pointer flex items-center p-1">
               <div className="w-4 h-4 bg-[#6A7282] rounded-full absolute left-1"></div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="relative">
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="relative flex-1 md:flex-none">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Search size={16} className="text-[#6A7282]" />
               </div>
               <input
                 type="text"
                 placeholder="Search by item name, store, or UPC..."
-                className="pl-11 pr-4 py-[10px] border border-[#EBEBEB] rounded-xl text-sm text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:ring-2 focus:ring-[#005EF8] w-[260px]"
+                className="pl-11 pr-4 py-3 md:py-[10px] border border-[#EBEBEB] rounded-xl text-[16px] md:text-sm text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:ring-2 focus:ring-[#005EF8] w-full md:w-[260px]"
               />
             </div>
             
             <button 
               onClick={() => setIsFilterOpen(true)}
-              className="flex items-center justify-center p-[10px] border border-[#EBEBEB] rounded-xl text-[#6A7282] hover:bg-[#F5F5F5] transition-colors"
+              className="flex items-center justify-center p-3 md:p-[10px] border border-[#EBEBEB] rounded-xl text-[#6A7282] hover:bg-[#F5F5F5] transition-colors shrink-0"
             >
               <Filter size={18} strokeWidth={1.5} />
             </button>
@@ -211,24 +211,24 @@ const DealsTable = () => {
                   <StatusBadge status={deal.status} />
                 </td>
                 <td className="py-4 px-6 text-right w-[160px]">
-                  <div className="flex items-center justify-end gap-5">
+                  <div className="flex items-center justify-end gap-2 md:gap-5">
                     <button 
                       onClick={() => setEditingDeal(deal)}
-                      className="text-[#6A7282] hover:text-[#0A0A0A] transition-colors" 
+                      className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors" 
                       title="Edit"
                     >
                       <EditIconCustom />
                     </button>
                     <button 
                       onClick={() => setArchivingDeal(deal)}
-                      className="text-[#6A7282] hover:text-[#0A0A0A] transition-colors" 
+                      className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors" 
                       title="Archive"
                     >
                       <ArchiveIconCustom />
                     </button>
                     <button 
                       onClick={() => setDeletingDeal(deal)}
-                      className="text-[#B00020] hover:text-red-700 transition-colors" 
+                      className="p-2 text-[#B00020] hover:text-red-700 transition-colors" 
                       title="Delete"
                     >
                       <Trash2 size={20} strokeWidth={1.5} />

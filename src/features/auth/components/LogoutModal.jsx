@@ -6,7 +6,7 @@ const LogoutModal = ({ isOpen, onClose, onConfirm }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[2px]">
-      <div className="bg-white rounded-[24px] shadow-2xl w-[520px] p-10 flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-[24px] shadow-2xl w-[520px] max-w-[calc(100vw-32px)] mx-4 p-8 md:p-10 flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-200">
         
         {/* Icon Circle */}
         <div className="w-[88px] h-[88px] rounded-full bg-[#FFF0F2] flex items-center justify-center mb-6">

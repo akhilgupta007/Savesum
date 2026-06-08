@@ -86,7 +86,7 @@ const MobilePreview = ({ formData }) => {
               <div className="flex gap-2">
                 <div className="w-[36px] h-[36px] rounded bg-[#F5F5F5] overflow-hidden flex-shrink-0">
                   <img 
-                    src={formData.img || "https://randomuser.me/api/portraits/lego/1.jpg"} 
+                    src={formData.img || "https://images.unsplash.com/photo-1584308666744-24d5e4b6e58b?w=80&h=80&fit=crop"} 
                     alt="Product" 
                     className="w-full h-full object-cover"
                   />

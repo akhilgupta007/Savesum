@@ -10,7 +10,7 @@ const ProfileSettings = () => {
         PROFILE SETTINGS
       </h2>
 
-      <div className="grid grid-cols-2 gap-x-6 gap-y-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6 mb-8">
 
         {/* Full Name */}
         <div className="flex flex-col gap-2.5 min-w-0">
@@ -18,7 +18,7 @@ const ProfileSettings = () => {
           <input
             type="text"
             defaultValue="Alex Hamilton"
-            className="w-full px-4 py-3 border border-[#EBEBEB] rounded-lg text-[15px] text-[#8C8C8C] focus:outline-none focus:border-[#005EF8] transition-colors"
+            className="w-full px-4 py-3 border border-[#EBEBEB] rounded-lg text-[16px] md:text-[15px] text-[#8C8C8C] focus:outline-none focus:border-[#005EF8] transition-colors"
           />
         </div>
 
@@ -28,7 +28,7 @@ const ProfileSettings = () => {
           <input
             type="email"
             defaultValue="xyz@mail.com"
-            className="w-full px-4 py-3 border border-[#EBEBEB] rounded-lg text-[15px] text-[#8C8C8C] focus:outline-none focus:border-[#005EF8] transition-colors"
+            className="w-full px-4 py-3 border border-[#EBEBEB] rounded-lg text-[16px] md:text-[15px] text-[#8C8C8C] focus:outline-none focus:border-[#005EF8] transition-colors"
           />
         </div>
 
@@ -47,7 +47,7 @@ const ProfileSettings = () => {
             type="password"
             defaultValue="*********"
             readOnly
-            className="w-full px-4 py-3 border border-[#EBEBEB] rounded-lg text-[15px] text-[#8C8C8C] bg-white cursor-default focus:outline-none tracking-[0.2em]"
+            className="w-full px-4 py-3 border border-[#EBEBEB] rounded-lg text-[16px] md:text-[15px] text-[#8C8C8C] bg-white cursor-default focus:outline-none tracking-[0.2em]"
           />
         </div>
 
@@ -57,18 +57,18 @@ const ProfileSettings = () => {
           <input
             type="tel"
             defaultValue="012345678901"
-            className="w-full px-4 py-3 border border-[#EBEBEB] rounded-lg text-[15px] text-[#8C8C8C] focus:outline-none focus:border-[#005EF8] transition-colors"
+            className="w-full px-4 py-3 border border-[#EBEBEB] rounded-lg text-[16px] md:text-[15px] text-[#8C8C8C] focus:outline-none focus:border-[#005EF8] transition-colors"
           />
         </div>
 
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-4">
-        <button className="px-8 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] font-medium text-[#D10020] hover:bg-red-50 transition-colors">
+      <div className="flex flex-col md:flex-row items-center justify-end gap-4 w-full">
+        <button className="w-full md:w-auto px-8 py-3 md:py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] font-medium text-[#D10020] hover:bg-red-50 transition-colors">
           Clear All
         </button>
-        <button className="px-8 py-2.5 bg-[#005EF8] rounded-lg text-[14px] font-medium text-white hover:bg-[#005EF8]/90 transition-colors">
+        <button className="w-full md:w-auto px-8 py-3 md:py-2.5 bg-[#005EF8] rounded-lg text-[14px] font-medium text-white hover:bg-[#005EF8]/90 transition-colors">
           Update Details
         </button>
       </div>

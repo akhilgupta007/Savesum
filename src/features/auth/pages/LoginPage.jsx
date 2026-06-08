@@ -1,6 +1,8 @@
 import React from 'react';
 import AuthBranding from '../components/AuthBranding';
 import LoginForm from '../components/LoginForm';
+import logo1 from '@/assets/save_sum_logo_1.svg';
+import logo2 from '@/assets/save_sum_logo_2.svg';
 
 /**
  * LoginPage — Figma node 434:1727 "Log in"
@@ -28,12 +30,6 @@ const LoginPage = () => {
         className="flex-1 flex items-center justify-center"
         style={{ minHeight: '100vh' }}
       >
-        {/*
-          Inner container: max-w matches Figma 540px width.
-          The vertical centering approximates the Figma top:288px
-          within a 1024px height panel (288 / 1024 ≈ 28% from top).
-          We use pt-[28%] to mimic this without fixed positioning.
-        */}
         <div
           className="w-full flex flex-col"
           style={{
@@ -42,6 +38,12 @@ const LoginPage = () => {
             padding: '16px 16px 29px',
           }}
         >
+          {/* Mobile Logo */}
+          <div className="flex lg:hidden items-center justify-center gap-3 w-full mb-4">
+            <img src={logo1} alt="Save Sum Logo 1" className="h-[48px] w-auto object-contain" />
+            <img src={logo2} alt="Save Sum Logo 2" className="h-[22px] w-auto object-contain" />
+          </div>
+
           <LoginForm />
         </div>
       </div>

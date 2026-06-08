@@ -14,8 +14,8 @@ const LegalPages = () => {
     <div className="bg-white border border-[#EBEBEB] rounded-2xl p-8 shadow-sm font-inter">
       <h2 className="text-[14px] font-bold text-[#0A0A0A] uppercase tracking-wide mb-8">LEGAL PAGES</h2>
 
-      <div className="w-full">
-        <table className="w-full text-left border-collapse">
+      <div className="w-full overflow-x-auto">
+        <table className="w-full text-left border-collapse min-w-[500px]">
           <thead>
             <tr className="border-b border-[#EBEBEB]">
               <th className="pb-4 text-[13px] font-medium text-[#8C8C8C] w-[40%] font-normal">Page Type</th>
@@ -37,7 +37,7 @@ const LegalPages = () => {
                 <td className="py-6 text-right pr-4">
                   <button 
                     onClick={() => setActiveModal(page)}
-                    className="text-[#6A7282] hover:text-[#0A0A0A] transition-colors inline-flex justify-end"
+                    className="p-2 -mr-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors inline-flex justify-end"
                   >
                     <Edit2 size={18} strokeWidth={1.5} />
                   </button>

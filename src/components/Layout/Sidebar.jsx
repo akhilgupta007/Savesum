@@ -13,7 +13,7 @@ import logo1 from '@/assets/save_sum_logo_1.svg';
 import logo2 from '@/assets/save_sum_logo_2.svg';
 import LogoutModal from '@/features/auth/components/LogoutModal';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const navLinks = [
     { name: 'Dashboard', icon: LayoutDashboard, path: ROUTES.DASHBOARD },
@@ -25,7 +25,15 @@ const Sidebar = () => {
 
   return (
     <>
-      <aside className="w-[280px] h-screen bg-white border-r border-[#EBEBEB] flex flex-col justify-between py-8">
+      {/* Mobile Backdrop */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-[50] md:hidden backdrop-blur-sm"
+          onClick={onClose}
+        />
+      )}
+      
+      <aside className={`w-[280px] h-screen bg-white border-r border-[#EBEBEB] flex flex-col justify-between py-8 fixed inset-y-0 left-0 z-[60] transform transition-transform duration-300 md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       <div>
         <div className="px-8 mb-10 flex items-center gap-3">
           <img src={logo1} alt="Save Sum Logo 1" className="h-[48px] w-auto object-contain" />
@@ -41,6 +49,7 @@ const Sidebar = () => {
               <NavLink
                 key={link.name}
                 to={link.path}
+                onClick={onClose}
                 className={({ isActive }) => 
                   `flex items-center gap-4 px-4 py-3 rounded-xl transition-all font-inter text-[15px] font-medium ${
                     isActive 
