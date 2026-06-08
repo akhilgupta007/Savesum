@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 
 import PrivateRoute from '@/components/shared/PrivateRoute/PrivateRoute'
 import ErrorBoundary from '@/components/shared/ErrorBoundary/ErrorBoundary'
@@ -17,6 +17,7 @@ const SettingsPage = lazy(() => import('@/features/settings/pages/SettingsPage')
 const ForgotPasswordPage = lazy(() => import('@/features/auth/pages/ForgotPasswordPage'))
 
 const router = createBrowserRouter([
+  { path: '/', element: <Navigate to={ROUTES.DASHBOARD} replace /> },
   { path: ROUTES.LOGIN,    element: <LoginPage />, errorElement: <ErrorBoundary /> },
   { path: ROUTES.REGISTER, element: <RegisterPage />, errorElement: <ErrorBoundary /> },
   { path: ROUTES.FORGOT_PASSWORD, element: <ForgotPasswordPage />, errorElement: <ErrorBoundary /> },
