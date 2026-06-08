@@ -1,4 +1,6 @@
 import defaultTheme from 'tailwindcss/defaultTheme'
+import tailwindForms from '@tailwindcss/forms'
+import tailwindTypography from '@tailwindcss/typography'
 
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
@@ -39,7 +41,7 @@ export default {
     },
   },
   plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
+    tailwindForms,
+    tailwindTypography,
   ],
 }
