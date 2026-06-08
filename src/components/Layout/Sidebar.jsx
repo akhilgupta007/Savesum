@@ -68,7 +68,10 @@ const Sidebar = ({ isOpen, onClose }) => {
 
       <div className="px-4">
         <button 
-          onClick={() => setIsLogoutModalOpen(true)}
+          onClick={() => {
+            onClose?.();
+            setIsLogoutModalOpen(true);
+          }}
           className="flex w-full items-center gap-4 px-4 py-3 rounded-xl transition-all font-inter text-[15px] font-medium text-[#6A7282] hover:bg-[#F9FAFB] hover:text-[#0A0A0A]"
         >
           <LogOut size={20} />
