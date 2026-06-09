@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
 import { ROUTES } from '@/constants/routes.constants';
+import { useLogin } from '../hooks/useLogin';
+import { setCredentials } from '../store/authSlice';
+
+const loginSchema = z.object({
+  email: z.string().min(1, 'Email is required').email('Invalid email format'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
 
 const EyeOpenIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -15,57 +27,45 @@ const EyeOffIcon = () => (
   </svg>
 );
 
-/**
- * LoginForm — for Figma node 716:624
- *
- * Outer container (716:618):
- *   width: 540px, height: 448px
- *   left: 90px, top: 288px
- *   flexDirection: column, gap: 32px, padding: 16px 16px 29px
- *
- * Form inner container (716:624):
- *   width: 508px, gap: 24px
- *
- * Email input (716:628): width 508px, height 49px, border 0.8px #D1D5DC, radius 12px
- * Password input (716:634): same
- * LOG IN button (716:641): width 508px, height 52px, bg #005EF8, radius 12px
- * "Forgot Password?" (716:640): color #B00020, font Inter 500 14px, right-aligned
- */
 const LoginForm = () => {
-  const [email, setEmail] = useState('admin@savesum.com');
-  const [password, setPassword] = useState('password123');
-  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { mutate: login, isPending } = useLogin();
 
-  const validate = () => {
-    const newErrors = {};
-    if (!email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Invalid email format';
-    }
-    if (!password) {
-      newErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
-    setIsLoading(true);
-    try {
-      await new Promise((res) => setTimeout(res, 800)); // slightly faster for testing
-      localStorage.setItem('accessToken', 'dummy-token-123');
-      navigate(ROUTES.DASHBOARD);
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = (data) => {
+    login(data, {
+      onSuccess: (res) => {
+        const { userObject, accessToken, refreshToken } = res.data.data;
+        localStorage.setItem('refreshToken', refreshToken);
+        dispatch(
+          setCredentials({
+            user: userObject,
+            accessToken: accessToken,
+          })
+        );
+        toast.success('Login successful!');
+        navigate(ROUTES.DASHBOARD);
+      },
+      onError: (err) => {
+        const errorMessage = err.response?.data?.message || 'Login failed';
+        toast.error(errorMessage);
+        setError('root.serverError', { type: 'manual', message: errorMessage });
+      },
+    });
   };
 
   const inputBase = {
@@ -84,45 +84,24 @@ const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col w-full" style={{ gap: 24 }}>
-
-      {/* ── Heading block ── */}
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full" style={{ gap: 24 }}>
       <div className="flex flex-col w-full" style={{ gap: 12 }}>
-        {/* "Welcome Back" — Inter 500 20px #0A0A0A center */}
         <h1
           className="w-full text-center"
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 20,
-            fontWeight: 500,
-            color: '#0A0A0A',
-            lineHeight: '28px',
-            margin: 0,
-          }}
+          style={{ fontFamily: 'Inter, sans-serif', fontSize: 20, fontWeight: 500, color: '#0A0A0A', lineHeight: '28px', margin: 0 }}
         >
           Welcome Back
         </h1>
-        {/* Subtitle — Inter 16px #6A7282 center */}
         <p
           className="text-center"
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 16,
-            color: '#6A7282',
-            lineHeight: '21px',
-            margin: 0,
-          }}
+          style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: '#6A7282', lineHeight: '21px', margin: 0 }}
         >
           Log in to access your strategic savings dashboard.
         </p>
       </div>
 
-      {/* ── Email field ── */}
       <div className="flex flex-col w-full" style={{ gap: 8 }}>
-        <label
-          htmlFor="email"
-          style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 500, color: '#0A0A0A', lineHeight: '20px' }}
-        >
+        <label htmlFor="email" style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 500, color: '#0A0A0A', lineHeight: '20px' }}>
           EMAIL ADDRESS
         </label>
         <input
@@ -130,32 +109,18 @@ const LoginForm = () => {
           type="email"
           autoComplete="email"
           placeholder="you@company.com"
-          value={email}
-          disabled={isLoading}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            if (errors.email) setErrors((p) => ({ ...p, email: undefined }));
-          }}
-          style={{
-            ...inputBase,
-            borderColor: errors.email ? '#ef4444' : '#D1D5DC',
-          }}
+          disabled={isPending}
+          {...register('email')}
+          style={{ ...inputBase, borderColor: errors.email ? '#ef4444' : '#D1D5DC' }}
           onFocus={(e) => { e.target.style.borderColor = '#005EF8'; e.target.style.boxShadow = '0 0 0 1px #005EF8'; }}
           onBlur={(e) => { e.target.style.borderColor = errors.email ? '#ef4444' : '#D1D5DC'; e.target.style.boxShadow = 'none'; }}
         />
-        {errors.email && (
-          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#ef4444' }}>{errors.email}</span>
-        )}
+        {errors.email && <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#ef4444' }}>{errors.email.message}</span>}
       </div>
 
-      {/* ── Password field ── */}
       <div className="flex flex-col w-full" style={{ gap: 8 }}>
-        {/* Label row: PASSWORD left | Forgot Password? right — matches Figma Button node 716:639 */}
         <div className="flex items-center justify-between">
-          <label
-            htmlFor="password"
-            style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 500, color: '#0A0A0A', lineHeight: '20px' }}
-          >
+          <label htmlFor="password" style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 500, color: '#0A0A0A', lineHeight: '20px' }}>
             PASSWORD
           </label>
           <Link
@@ -174,21 +139,12 @@ const LoginForm = () => {
             type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
             placeholder="••••••••"
-            value={password}
-            disabled={isLoading}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              if (errors.password) setErrors((p) => ({ ...p, password: undefined }));
-            }}
-            style={{
-              ...inputBase,
-              borderColor: errors.password ? '#ef4444' : '#D1D5DC',
-              paddingRight: 48,
-            }}
+            disabled={isPending}
+            {...register('password')}
+            style={{ ...inputBase, borderColor: errors.password ? '#ef4444' : '#D1D5DC', paddingRight: 48 }}
             onFocus={(e) => { e.target.style.borderColor = '#005EF8'; e.target.style.boxShadow = '0 0 0 1px #005EF8'; }}
             onBlur={(e) => { e.target.style.borderColor = errors.password ? '#ef4444' : '#D1D5DC'; e.target.style.boxShadow = 'none'; }}
           />
-          {/* Eye icon — Figma Icon node 716:636, 20×20 at right:16 */}
           <button
             type="button"
             tabIndex={-1}
@@ -198,15 +154,18 @@ const LoginForm = () => {
             {showPassword ? <EyeOffIcon /> : <EyeOpenIcon />}
           </button>
         </div>
-        {errors.password && (
-          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#ef4444' }}>{errors.password}</span>
-        )}
+        {errors.password && <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#ef4444' }}>{errors.password.message}</span>}
       </div>
 
-      {/* ── LOG IN button — node 716:641: width 508px height 52px bg #005EF8 radius 12px ── */}
+      {errors.root?.serverError && (
+        <div className="text-center w-full" style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#ef4444' }}>
+          {errors.root.serverError.message}
+        </div>
+      )}
+
       <button
         type="submit"
-        disabled={isLoading}
+        disabled={isPending}
         className="w-full flex items-center justify-center text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#005EF8] disabled:opacity-60 disabled:cursor-not-allowed"
         style={{
           height: 52,
@@ -218,12 +177,11 @@ const LoginForm = () => {
           fontWeight: 500,
           color: '#FFFFFF',
           lineHeight: '20px',
-          cursor: isLoading ? 'not-allowed' : 'pointer',
+          cursor: isPending ? 'not-allowed' : 'pointer',
         }}
       >
-        {isLoading ? 'LOGGING IN…' : 'LOG IN'}
+        {isPending ? 'LOGGING IN…' : 'LOG IN'}
       </button>
-
     </form>
   );
 };

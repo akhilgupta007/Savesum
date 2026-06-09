@@ -1,13 +1,13 @@
 import { Navigate, Outlet, ScrollRestoration } from 'react-router-dom';
-import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader';
-import DashboardLayout from '@/components/Layout/DashboardLayout'
-import { ROUTES } from '@/constants/routes.constants'
+import { useSelector } from 'react-redux';
+import DashboardLayout from '@/components/Layout/DashboardLayout';
+import { ROUTES } from '@/constants/routes.constants';
 
 const PrivateRoute = () => {
-  const token = localStorage.getItem('accessToken')
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
-  if (!token) {
-    return <Navigate to={ROUTES.LOGIN} replace />
+  if (!isAuthenticated) {
+    return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
   return (
@@ -17,7 +17,7 @@ const PrivateRoute = () => {
         <Outlet />
       </div>
     </DashboardLayout>
-  )
-}
+  );
+};
 
-export default PrivateRoute
+export default PrivateRoute;

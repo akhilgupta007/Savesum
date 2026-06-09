@@ -12,9 +12,12 @@ import { ROUTES } from '@/constants/routes.constants';
 import logo1 from '@/assets/save_sum_logo_1.svg';
 import logo2 from '@/assets/save_sum_logo_2.svg';
 import LogoutModal from '@/features/auth/components/LogoutModal';
+import { useLogout } from '@/features/auth/hooks/useLogout';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const { mutate: logout, isPending } = useLogout();
+  
   const navLinks = [
     { name: 'Dashboard', icon: LayoutDashboard, path: ROUTES.DASHBOARD },
     { name: 'Deals', icon: Tag, path: ROUTES.DEALS },
@@ -33,7 +36,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         />
       )}
       
-      <aside className={`w-[280px] h-screen bg-white border-r border-[#EBEBEB] flex flex-col justify-between py-8 fixed inset-y-0 left-0 z-[60] transform transition-transform duration-300 md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`w-[280px] h-screen bg-white border-r border-[#EBEBEB] flex flex-col justify-between py-8 fixed inset-y-0 left-0 z-[60] md:z-40 transform transition-transform duration-300 md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       <div>
         <div className="px-8 mb-10 flex items-center gap-3">
           <img src={logo1} alt="Save Sum Logo 1" className="h-[48px] w-auto object-contain" />
@@ -72,10 +75,11 @@ const Sidebar = ({ isOpen, onClose }) => {
             onClose?.();
             setIsLogoutModalOpen(true);
           }}
-          className="flex w-full items-center gap-4 px-4 py-3 rounded-xl transition-all font-inter text-[15px] font-medium text-[#6A7282] hover:bg-[#F9FAFB] hover:text-[#0A0A0A]"
+          disabled={isPending}
+          className="flex w-full items-center gap-4 px-4 py-3 rounded-xl transition-all font-inter text-[15px] font-medium text-[#6A7282] hover:bg-[#F9FAFB] hover:text-[#0A0A0A] disabled:opacity-50"
         >
           <LogOut size={20} />
-          Log Out
+          {isPending ? 'Logging Out...' : 'Log Out'}
         </button>
       </div>
       </aside>
@@ -85,8 +89,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         onClose={() => setIsLogoutModalOpen(false)}
         onConfirm={() => {
           setIsLogoutModalOpen(false);
-          // TODO: Add actual logout logic here
-          console.log("User logged out");
+          logout();
         }}
       />
     </>
