@@ -1,14 +1,51 @@
 import React, { useState } from 'react';
 import { Edit2 } from 'lucide-react';
 import LegalPageModal from './LegalPageModal';
+import { usePrivacyPolicy, useTerms } from '../hooks/useLegalPages';
 
 const LegalPages = () => {
-  const [activeModal, setActiveModal] = useState(null);
+  const [activeModal, setActiveModal] = useState(null); // activeModal is now the full page object
+
+  const { data: privacyRes, isLoading: isPrivacyLoading } = usePrivacyPolicy();
+  const { data: termsRes, isLoading: isTermsLoading } = useTerms();
+
+  const privacyData = privacyRes?.data?.data || {};
+  const termsData = termsRes?.data?.data || {};
+
+  const formatDate = (isoString) => {
+    if (!isoString) return 'Not Published';
+    const date = new Date(isoString);
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
 
   const pages = [
-    { id: 'privacy', title: 'Privacy Policy', status: 'Published', date: '02 Jun 2026' },
-    { id: 'terms', title: 'Terms & Conditions', status: 'Published', date: '02 Jun 2026' }
+    { 
+      id: 'privacy', 
+      title: 'Privacy Policy', 
+      status: privacyData.privacyPolicy ? 'Published' : 'Draft', 
+      date: formatDate(privacyData.lastUpdated),
+      content: privacyData.privacyPolicy || ''
+    },
+    { 
+      id: 'terms', 
+      title: 'Terms & Conditions', 
+      status: termsData.termsAndConditions ? 'Published' : 'Draft', 
+      date: formatDate(termsData.lastUpdated),
+      content: termsData.termsAndConditions || ''
+    }
   ];
+
+  if (isPrivacyLoading || isTermsLoading) {
+    return (
+      <div className="bg-white border border-[#EBEBEB] rounded-2xl p-8 shadow-sm font-inter">
+        <h2 className="text-[14px] font-bold text-[#0A0A0A] uppercase tracking-wide mb-8">LEGAL PAGES</h2>
+        <div className="animate-pulse flex flex-col gap-4">
+          <div className="h-10 bg-gray-200 rounded w-full"></div>
+          <div className="h-10 bg-gray-200 rounded w-full"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white border border-[#EBEBEB] rounded-2xl p-8 shadow-sm font-inter">
@@ -53,6 +90,7 @@ const LegalPages = () => {
           isOpen={!!activeModal} 
           onClose={() => setActiveModal(null)}
           pageType={activeModal.id}
+          initialContent={activeModal.content}
         />
       )}
     </div>

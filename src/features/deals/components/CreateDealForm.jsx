@@ -27,17 +27,30 @@ const CreateDealForm = ({ formData, setFormData }) => {
     setIsDropdownOpen(false);
   };
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, img: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const fileInputRef = useRef(null);
+
   return (
     <div className="flex flex-col gap-6 w-full font-inter pb-32">
-      
+
       {/* ITEM INFORMATION */}
       <div className="bg-white rounded-xl border border-[#EBEBEB] p-6 shadow-sm">
         <h3 className="text-[13px] font-bold text-[#0A0A0A] tracking-wider mb-6">ITEM INFORMATION</h3>
-        
+
         <div className="grid grid-cols-2 gap-6 mb-6">
           <div className="flex flex-col gap-2">
             <label className="text-[13px] font-semibold text-[#0A0A0A]">Product Name</label>
-            <input 
+            <input
               type="text"
               name="name"
               value={formData.name || ''}
@@ -48,7 +61,7 @@ const CreateDealForm = ({ formData, setFormData }) => {
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-[13px] font-semibold text-[#0A0A0A]">UPC Code</label>
-            <input 
+            <input
               type="text"
               name="upc"
               value={formData.upc || ''}
@@ -61,14 +74,30 @@ const CreateDealForm = ({ formData, setFormData }) => {
 
         <div className="flex flex-col gap-2">
           <label className="text-[13px] font-semibold text-[#0A0A0A]">Product Image</label>
-          <div className="w-full h-[120px] border border-dashed border-[#D1D5DC] rounded-xl flex flex-col items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer">
-            <div className="w-10 h-10 bg-[#E8F0FE] rounded-full flex items-center justify-center text-[#005EF8] mb-2">
-              <Plus size={20} strokeWidth={2.5} />
-            </div>
-            <p className="text-[12px] font-medium text-[#0A0A0A]">
-              Drag & drop product photo or <span className="text-[#005EF8]">Browse</span>
-            </p>
-            <p className="text-[11px] text-[#6A7282] mt-1">Supports PNG, JPG (Max 5MB)</p>
+          <div
+            className="w-full h-[120px] border border-dashed border-[#D1D5DC] rounded-xl flex flex-col items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer relative overflow-hidden"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {formData.img ? (
+              <img src={formData.img} alt="Product Preview" className="w-full h-full object-contain" />
+            ) : (
+              <>
+                <div className="w-10 h-10 bg-[#E8F0FE] rounded-full flex items-center justify-center text-[#005EF8] mb-2">
+                  <Plus size={20} strokeWidth={2.5} />
+                </div>
+                <p className="text-[12px] font-medium text-[#0A0A0A]">
+                  Drag & drop product photo or <span className="text-[#005EF8]">Browse</span>
+                </p>
+                <p className="text-[11px] text-[#6A7282] mt-1">Supports PNG, JPG (Max 5MB)</p>
+              </>
+            )}
+            <input
+              type="file"
+              accept="image/png, image/jpeg"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleImageUpload}
+            />
           </div>
         </div>
       </div>
@@ -76,10 +105,10 @@ const CreateDealForm = ({ formData, setFormData }) => {
       {/* RETAILER PRICING */}
       <div className="bg-white rounded-xl border border-[#EBEBEB] p-6 shadow-sm">
         <h3 className="text-[13px] font-bold text-[#0A0A0A] tracking-wider mb-6">RETAILER PRICING</h3>
-        
+
         <div className="flex flex-col gap-2 mb-6">
           <label className="text-[13px] font-semibold text-[#0A0A0A]">Store/Retailer</label>
-          <input 
+          <input
             type="text"
             name="store"
             value={formData.store || ''}
@@ -94,8 +123,10 @@ const CreateDealForm = ({ formData, setFormData }) => {
             <label className="text-[13px] font-semibold text-[#0A0A0A]">Retail Price</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#6A7282]">$</div>
-              <input 
-                type="text"
+              <input
+                type="number"
+                step="0.01"
+                min="0"
                 name="retail"
                 value={formData.retail || ''}
                 onChange={handleInputChange}
@@ -108,8 +139,10 @@ const CreateDealForm = ({ formData, setFormData }) => {
             <label className="text-[13px] font-semibold text-[#0A0A0A]">Sale Price (Optional)</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#6A7282]">$</div>
-              <input 
-                type="text"
+              <input
+                type="number"
+                step="0.01"
+                min="0"
                 name="salePrice"
                 value={formData.salePrice || ''}
                 onChange={handleInputChange}
@@ -124,14 +157,16 @@ const CreateDealForm = ({ formData, setFormData }) => {
       {/* OFFER DETAILS */}
       <div className="bg-white rounded-xl border border-[#EBEBEB] p-6 shadow-sm relative z-20">
         <h3 className="text-[13px] font-bold text-[#0A0A0A] tracking-wider mb-6">OFFER DETAILS</h3>
-        
+
         <div className="grid grid-cols-2 gap-6 mb-6">
           <div className="flex flex-col gap-2">
             <label className="text-[13px] font-semibold text-[#0A0A0A]">Coupon Amount</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#6A7282]">$</div>
-              <input 
-                type="text"
+              <input
+                type="number"
+                step="0.01"
+                min="0"
                 name="coupon"
                 value={formData.coupon || ''}
                 onChange={handleInputChange}
@@ -140,7 +175,7 @@ const CreateDealForm = ({ formData, setFormData }) => {
               />
             </div>
           </div>
-          
+
           {/* Custom Dropdown for Coupon Type */}
           <div className="flex flex-col gap-2" ref={dropdownRef}>
             <label className="text-[13px] font-semibold text-[#0A0A0A]">Coupon Type</label>
@@ -155,16 +190,15 @@ const CreateDealForm = ({ formData, setFormData }) => {
                 </span>
                 <ChevronDown size={16} className="text-[#6A7282]" />
               </button>
-              
+
               {isDropdownOpen && (
                 <div className="absolute top-full mt-2 w-full bg-white border border-[#EBEBEB] rounded-xl shadow-lg z-50 py-2 max-h-[250px] overflow-y-auto">
                   {percentageOptions.map((opt, idx) => (
-                    <div 
+                    <div
                       key={idx}
                       onClick={() => handleCouponTypeSelect(opt)}
-                      className={`px-4 py-2.5 text-[14px] text-[#0A0A0A] cursor-pointer hover:bg-[#F5F5F5] transition-colors border-b border-[#F5F5F5] last:border-0 ${
-                        formData.couponType === opt ? 'bg-[#F0F5FF] border-l-2 border-l-[#005EF8] text-[#005EF8]' : ''
-                      }`}
+                      className={`px-4 py-2.5 text-[14px] text-[#0A0A0A] cursor-pointer hover:bg-[#F5F5F5] transition-colors border-b border-[#F5F5F5] last:border-0 ${formData.couponType === opt ? 'bg-[#F0F5FF] border-l-2 border-l-[#005EF8] text-[#005EF8]' : ''
+                        }`}
                     >
                       {opt}
                     </div>
@@ -178,7 +212,7 @@ const CreateDealForm = ({ formData, setFormData }) => {
         <div className="grid grid-cols-2 gap-6">
           <div className="flex flex-col gap-2">
             <label className="text-[13px] font-semibold text-[#0A0A0A]">Reward Name</label>
-            <input 
+            <input
               type="text"
               name="rewardName"
               value={formData.rewardName || ''}
@@ -191,8 +225,10 @@ const CreateDealForm = ({ formData, setFormData }) => {
             <label className="text-[13px] font-semibold text-[#0A0A0A]">Reward Amount</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#6A7282]">$</div>
-              <input 
-                type="text"
+              <input
+                type="number"
+                step="0.01"
+                min="0"
                 name="reward"
                 value={formData.reward || ''}
                 onChange={handleInputChange}
@@ -207,38 +243,30 @@ const CreateDealForm = ({ formData, setFormData }) => {
       {/* CAMPAIGN SCHEDULING */}
       <div className="bg-white rounded-xl border border-[#EBEBEB] p-6 shadow-sm z-10">
         <h3 className="text-[13px] font-bold text-[#0A0A0A] tracking-wider mb-6">CAMPAIGN SCHEDULING</h3>
-        
+
         <div className="grid grid-cols-2 gap-6">
           <div className="flex flex-col gap-2">
             <label className="text-[13px] font-semibold text-[#0A0A0A]">Start Date</label>
             <div className="relative">
-              <input 
-                type="text"
+              <input
+                type="date"
                 name="startDate"
                 value={formData.startDate || ''}
                 onChange={handleInputChange}
-                placeholder="DD-MM-YYYY"
-                className="w-full pl-4 pr-10 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
+                className="w-full pl-4 pr-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8] bg-white"
               />
-              <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                <Calendar size={18} className="text-[#6A7282]" />
-              </div>
             </div>
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-[13px] font-semibold text-[#0A0A0A]">End Date</label>
             <div className="relative">
-              <input 
-                type="text"
+              <input
+                type="date"
                 name="endDate"
                 value={formData.endDate || ''}
                 onChange={handleInputChange}
-                placeholder="DD-MM-YYYY"
-                className="w-full pl-4 pr-10 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
+                className="w-full pl-4 pr-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8] bg-white"
               />
-              <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                <Calendar size={18} className="text-[#6A7282]" />
-              </div>
             </div>
           </div>
         </div>

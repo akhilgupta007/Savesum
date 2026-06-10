@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -31,12 +31,10 @@ const EyeOffIcon = () => (
   </svg>
 );
 
-const ResetPasswordForm = () => {
+const ResetPasswordForm = ({ token }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
   const navigate = useNavigate();
   const { mutate: resetPassword, isPending } = useResetPassword();
 
@@ -81,40 +79,6 @@ const ResetPasswordForm = () => {
     padding: '0 16px',
     boxSizing: 'border-box',
   };
-
-  // If token is missing, show an error state and block the form
-  if (!token) {
-    return (
-      <div className="flex flex-col w-full" style={{ gap: 24 }}>
-        <div className="flex flex-col w-full" style={{ gap: 12 }}>
-          <h1 className="w-full text-center" style={{ fontFamily: 'Inter, sans-serif', fontSize: 20, fontWeight: 500, color: '#0A0A0A', lineHeight: '28px', margin: 0 }}>
-            Invalid Link
-          </h1>
-          <p className="text-center" style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: '#ef4444', lineHeight: '21px', margin: 0 }}>
-            This reset link is invalid or has expired.
-          </p>
-        </div>
-        <Link
-          to={ROUTES.FORGOT_PASSWORD}
-          className="w-full flex items-center justify-center text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#005EF8]"
-          style={{
-            height: 52,
-            backgroundColor: '#005EF8',
-            borderRadius: 12,
-            border: 'none',
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 14,
-            fontWeight: 500,
-            color: '#FFFFFF',
-            lineHeight: '20px',
-            textDecoration: 'none',
-          }}
-        >
-          Request New Link
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full" style={{ gap: 24 }}>

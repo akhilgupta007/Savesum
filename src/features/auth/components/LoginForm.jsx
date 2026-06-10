@@ -108,7 +108,7 @@ const LoginForm = () => {
           id="email"
           type="email"
           autoComplete="email"
-          placeholder="you@company.com"
+          placeholder="Enter your email"
           disabled={isPending}
           {...register('email')}
           style={{ ...inputBase, borderColor: errors.email ? '#ef4444' : '#D1D5DC' }}
@@ -138,7 +138,7 @@ const LoginForm = () => {
             id="password"
             type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
-            placeholder="••••••••"
+            placeholder="Enter your password"
             disabled={isPending}
             {...register('password')}
             style={{ ...inputBase, borderColor: errors.password ? '#ef4444' : '#D1D5DC', paddingRight: 48 }}

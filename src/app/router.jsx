@@ -16,7 +16,6 @@ import AnalyticsPage from '@/features/analytics/pages/AnalyticsPage'
 import HelpCenterPage from '@/features/help/pages/HelpCenterPage'
 import SettingsPage from '@/features/settings/pages/SettingsPage'
 import ForgotPasswordPage from '@/features/auth/pages/ForgotPasswordPage'
-import ResetPasswordPage from '@/features/auth/pages/ResetPasswordPage'
 
 const router = createBrowserRouter([
   { path: '/', element: <Navigate to={ROUTES.DASHBOARD} replace /> },
@@ -28,7 +27,6 @@ const router = createBrowserRouter([
       { path: ROUTES.LOGIN, element: <LoginPage /> },
       { path: ROUTES.REGISTER, element: <RegisterPage /> },
       { path: ROUTES.FORGOT_PASSWORD, element: <ForgotPasswordPage /> },
-      { path: ROUTES.RESET_PASSWORD, element: <ResetPasswordPage /> },
     ],
   },
 

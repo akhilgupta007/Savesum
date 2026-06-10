@@ -8,5 +8,6 @@ export const authService = {
   refresh:  (data)  => api.post(ENDPOINTS.REFRESH, data), // { refreshToken }
   getMe:    ()      => api.get(ENDPOINTS.ME),
   forgotPassword: (data) => api.post(ENDPOINTS.FORGOT_PASSWORD, data),
+  verifyOtp:      (data) => api.post(ENDPOINTS.VERIFY_OTP, data),
   resetPassword:  (data) => api.post(ENDPOINTS.RESET_PASSWORD, data),
 }
