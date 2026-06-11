@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Calendar, Plus } from 'lucide-react';
 import { useUpdateDeal } from '../hooks/useUpdateDeal';
+import { useQueryClient } from '@tanstack/react-query';
+import StoreSelect from './StoreSelect';
 import dayjs from 'dayjs';
 
 const EditDealModal = ({ isOpen, onClose, deal }) => {
+  const queryClient = useQueryClient();
   const { mutate: updateDeal, isPending: isUpdating } = useUpdateDeal();
   const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({});
@@ -15,7 +18,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
       setFormData({
         productName: deal.productName || '',
         upcCode: deal.upcCode || '',
-        store: deal.store || '',
+        store: deal.store?.name || deal.store || '',
         retailPrice: deal.retailPrice || '',
         couponAmount: deal.couponAmount || '',
         couponType: deal.couponType || 'Digital',
@@ -49,6 +52,8 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
   const handleSubmit = (isDraft) => {
     const data = new FormData();
     Object.keys(formData).forEach(key => {
+      if (key === 'store') return; // Handled separately below
+
       if (formData[key] !== '' && formData[key] !== null) {
         if (key === 'couponType') {
           // Edit deal modal has 'Digital' or 'Paper'. We map anything with % to percentage, else flat
@@ -59,6 +64,17 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
         }
       }
     });
+
+    if (formData.store) {
+      data.append('store', formData.store);
+      // Match store name to id via cache
+      const storesCache = queryClient.getQueryData(['stores']);
+      const cacheList = storesCache?.data || [];
+      const foundStore = cacheList.find(s => s.name.toLowerCase() === formData.store.toLowerCase());
+      if (foundStore) {
+        data.append('storeId', foundStore._id);
+      }
+    }
     
     if (imageFile) {
       data.append('productImage', imageFile);
@@ -132,13 +148,9 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-[13px] font-semibold text-[#0A0A0A]">Store</label>
-              <input 
-                type="text" 
-                name="store"
-                value={formData.store}
-                onChange={handleInputChange}
-                placeholder="e.g. Walmart"
-                className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
+              <StoreSelect
+                value={formData.store || ''}
+                onChange={(storeName) => setFormData(prev => ({ ...prev, store: storeName }))}
               />
             </div>
             <div className="flex flex-col gap-2">

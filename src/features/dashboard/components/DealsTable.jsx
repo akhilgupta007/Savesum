@@ -57,10 +57,25 @@ const DealsTable = () => {
   const [isFilterOpen, setIsFilterOpen]   = useState(false);
   const [searchQuery, setSearchQuery]     = useState('');
   const [page, setPage]                   = useState(1);
+  const [modalFilters, setModalFilters]   = useState(null);
   const limit = 10;
+
+  const activeStores = modalFilters ? Object.entries(modalFilters.stores).filter(([_, v]) => v).map(([k]) => k) : [];
+  const activeRewards = modalFilters ? Object.entries(modalFilters.rewardTypes).filter(([_, v]) => v).map(([k]) => k) : [];
+
+  const apiFilters = modalFilters ? {
+    ...(activeStores.length > 0 && { storeId: activeStores }),
+    ...(activeRewards.length > 0 && { rewardTypes: activeRewards }),
+    dateRange: (modalFilters.startDate || modalFilters.endDate) ? {
+      startDate: modalFilters.startDate || undefined,
+      endDate: modalFilters.endDate || undefined,
+    } : undefined
+  } : undefined;
 
   const { data, isLoading } = useDeals({
     search: searchQuery,
+    filters: apiFilters,
+    sort: modalFilters?.sortBy ? { field: 'retailPrice', order: modalFilters.sortBy.includes('high') ? 'desc' : 'asc' } : undefined,
     pagination: { page, limit },
   });
 
@@ -99,7 +114,15 @@ const DealsTable = () => {
   return (
     <div className="bg-white rounded-xl border border-[#EBEBEB] shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col w-full font-inter overflow-hidden">
       {/* Modals */}
-      <FiltersModal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+      <FiltersModal 
+        isOpen={isFilterOpen} 
+        onClose={() => setIsFilterOpen(false)} 
+        currentFilters={modalFilters}
+        onApply={(filters) => {
+          setModalFilters(filters);
+          setPage(1);
+        }}
+      />
       <EditDealModal isOpen={!!editingDeal} onClose={() => setEditingDeal(null)} deal={editingDeal} />
       <ConfirmationModal
         isOpen={!!archivingDeal}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Calendar, ChevronDown, Check } from 'lucide-react';
+import { useStores } from '../hooks/useStores';
 
 const Checkbox = ({ label, checked, onChange }) => (
   <div className="flex items-center justify-between py-2.5 cursor-pointer" onClick={() => onChange(!checked)}>
@@ -11,24 +12,21 @@ const Checkbox = ({ label, checked, onChange }) => (
 );
 
 const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
-  const [stores, setStores] = useState(currentFilters?.stores || {
-    'CVS': false,
-    'Walgreens': false,
-    'Rite Aid': false,
-    'Target': true,
-    'Walmart': true
-  });
+  const { data: storesResponse } = useStores();
+  const storesList = storesResponse?.data || [];
+
+  const [stores, setStores] = useState(currentFilters?.stores || {});
 
   const [rewardTypes, setRewardTypes] = useState(currentFilters?.rewardTypes || {
     'ExtraBucks (ECB)': false,
     'Promo credit': false,
-    'Cash rewards': true,
-    'Store credit': true,
+    'Cash rewards': false,
+    'Store credit': false,
     'Coupon reward': false,
     'Loyalty points': false
   });
 
-  const [sortBy, setSortBy] = useState(currentFilters?.sortBy || 'Value (high - low)');
+  const [sortBy, setSortBy] = useState(currentFilters?.sortBy || '');
   const [startDate, setStartDate] = useState(currentFilters?.startDate || '');
   const [endDate, setEndDate] = useState(currentFilters?.endDate || '');
 
@@ -44,34 +42,35 @@ const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
 
   if (!isOpen) return null;
 
-  const handleStoreChange = (storeName, isChecked) => {
-    setStores(prev => ({ ...prev, [storeName]: isChecked }));
+  const handleStoreChange = (storeId, isChecked) => {
+    setStores(prev => ({ ...prev, [storeId]: isChecked }));
   };
 
   const handleRewardTypeChange = (rewardName, isChecked) => {
     setRewardTypes(prev => ({ ...prev, [rewardName]: isChecked }));
   };
 
+  const selectedStoreIds = Object.entries(stores).filter(([_, checked]) => checked).map(([id]) => id);
+  const selectedStoreNames = selectedStoreIds.map(id => storesList.find(s => s._id === id)?.name || id);
+  const selectedRewards = Object.entries(rewardTypes).filter(([_, checked]) => checked).map(([name]) => name);
+
+  const hasActiveFilters = selectedStoreIds.length > 0 || selectedRewards.length > 0 || !!startDate || !!endDate || !!sortBy;
+  const activeFilterCount = selectedStoreIds.length + selectedRewards.length + (startDate ? 1 : 0) + (endDate ? 1 : 0) + (sortBy ? 1 : 0);
+
+  // Clears ALL local state, tells parent to reset to null (no filters), closes modal
   const clearAll = () => {
-    setStores(Object.keys(stores).reduce((acc, curr) => ({ ...acc, [curr]: false }), {}));
+    setStores({});
     setRewardTypes(Object.keys(rewardTypes).reduce((acc, curr) => ({ ...acc, [curr]: false }), {}));
-    setSortBy('Value (high - low)');
+    setSortBy('');
     setStartDate('');
     setEndDate('');
+    if (onApply) onApply(null);
+    onClose();
   };
-
-  const selectedStores = Object.entries(stores).filter(([_, checked]) => checked).map(([name]) => name);
-  const selectedRewards = Object.entries(rewardTypes).filter(([_, checked]) => checked).map(([name]) => name);
 
   const handleApply = () => {
     if (onApply) {
-      onApply({
-        stores,
-        rewardTypes,
-        sortBy,
-        startDate,
-        endDate
-      });
+      onApply(hasActiveFilters ? { stores, rewardTypes, sortBy, startDate, endDate } : null);
     }
     onClose();
   };
@@ -95,10 +94,10 @@ const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
           <div className="flex items-center gap-4 px-6 py-4 border border-[#EBEBEB] rounded-xl">
             <span className="text-[13px] font-bold text-[#0A0A0A] uppercase tracking-wider">Active Filter:</span>
             <div className="flex flex-wrap gap-2">
-              {selectedStores.length > 0 && (
+              {selectedStoreNames.length > 0 && (
                 <div className="flex items-center gap-2 bg-[#005EF8] text-white px-4 py-1.5 rounded-full text-[13px] font-medium">
-                  Store: {selectedStores.join(', ')}
-                  <X size={14} className="cursor-pointer" onClick={() => setStores(prev => Object.keys(prev).reduce((acc, curr) => ({...acc, [curr]: false}), {}))} />
+                  Store: {selectedStoreNames.join(', ')}
+                  <X size={14} className="cursor-pointer" onClick={() => setStores({})} />
                 </div>
               )}
               {selectedRewards.length > 0 && (
@@ -133,18 +132,20 @@ const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
             <div className="border border-[#EBEBEB] rounded-xl p-6">
               <h3 className="text-[12px] font-bold text-[#0A0A0A] uppercase tracking-wider mb-4">Stores</h3>
               <div className="grid grid-cols-2 gap-x-8 gap-y-1">
-                {Object.entries(stores).map(([storeName, isChecked]) => (
+                {storesList.slice(0, 8).map((store) => (
                   <Checkbox 
-                    key={storeName} 
-                    label={storeName} 
-                    checked={isChecked} 
-                    onChange={(checked) => handleStoreChange(storeName, checked)} 
+                    key={store._id} 
+                    label={store.name} 
+                    checked={!!stores[store._id]} 
+                    onChange={(checked) => handleStoreChange(store._id, checked)} 
                   />
                 ))}
-                <div className="flex items-center justify-between py-2.5 cursor-pointer text-[#6A7282] hover:text-[#005EF8] transition-colors">
-                  <span className="text-[14px] uppercase font-medium">More</span>
-                  <ChevronDown size={16} />
-                </div>
+                {storesList.length > 8 && (
+                  <div className="flex items-center justify-between py-2.5 cursor-pointer text-[#6A7282] hover:text-[#005EF8] transition-colors col-span-2">
+                    <span className="text-[14px] uppercase font-medium">More</span>
+                    <ChevronDown size={16} />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -201,18 +202,28 @@ const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
         </div>
 
         {/* Footer Actions */}
-        <div className="flex justify-end gap-4 px-8 py-6 border-t border-[#EBEBEB] bg-white">
-          <button 
+        <div className="flex items-center justify-end gap-3 px-8 py-5 border-t border-[#EBEBEB] bg-white">
+          <button
             onClick={clearAll}
-            className="px-8 py-3 rounded-xl border border-[#EBEBEB] text-[14px] font-bold text-[#B00020] hover:bg-red-50 transition-colors"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl border border-[#EBEBEB] text-[14px] font-semibold text-[#B00020] hover:bg-red-50 hover:border-red-200 transition-all duration-150"
           >
-            Clear All
+            <span>Clear All</span>
+            {hasActiveFilters && (
+              <span className="w-5 h-5 bg-[#B00020] text-white text-[11px] font-bold rounded-full flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
           </button>
-          <button 
+          <button
             onClick={handleApply}
-            className="px-8 py-3 rounded-xl bg-[#005EF8] text-[14px] font-bold text-white hover:bg-blue-700 transition-colors shadow-md"
+            className="flex items-center gap-2 px-8 py-2.5 rounded-xl bg-[#005EF8] text-[14px] font-bold text-white hover:bg-blue-700 transition-colors shadow-md"
           >
             Apply Filters
+            {hasActiveFilters && (
+              <span className="w-5 h-5 bg-white/30 text-white text-[11px] font-bold rounded-full flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
           </button>
         </div>
 

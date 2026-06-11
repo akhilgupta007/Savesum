@@ -103,11 +103,14 @@ const DealsInventoryTable = ({ searchQuery }) => {
   const limit = 10;
   const [modalFilters, setModalFilters] = useState(null);
 
+  const activeStores = modalFilters ? Object.entries(modalFilters.stores).filter(([_, v]) => v).map(([k]) => k) : [];
+  const activeRewards = modalFilters ? Object.entries(modalFilters.rewardTypes).filter(([_, v]) => v).map(([k]) => k) : [];
+
   const apiFilters = {
     status: mapTabToStatus(activeTab),
     ...(modalFilters && {
-      stores: Object.entries(modalFilters.stores).filter(([_, v]) => v).map(([k]) => k),
-      rewardTypes: Object.entries(modalFilters.rewardTypes).filter(([_, v]) => v).map(([k]) => k),
+      ...(activeStores.length > 0 && { storeId: activeStores }),
+      ...(activeRewards.length > 0 && { rewardTypes: activeRewards }),
       dateRange: (modalFilters.startDate || modalFilters.endDate) ? {
         startDate: modalFilters.startDate || undefined,
         endDate: modalFilters.endDate || undefined,

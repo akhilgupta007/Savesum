@@ -8,10 +8,12 @@ import MobilePreview from '../components/MobilePreview';
 import ConfirmationModal from '../components/ConfirmationModal';
 import SuccessModal from '../components/SuccessModal';
 import { useCreateDeal } from '../hooks/useCreateDeal';
+import { useQueryClient } from '@tanstack/react-query';
 import { formatRelativeTime } from '@/utils/formatDate';
 
 const CreateDealPage = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { mutate: createDeal, isPending: isCreating } = useCreateDeal();
   
   const [formData, setFormData] = useState({});
@@ -58,7 +60,6 @@ const CreateDealPage = () => {
     const mapping = {
       name: 'productName',
       upc: 'upcCode',
-      store: 'store',
       retail: 'retailPrice',
       coupon: 'couponAmount',
       couponType: 'couponType',
@@ -79,6 +80,16 @@ const CreateDealPage = () => {
         }
       }
     });
+
+    if (formData.store) {
+      data.append('store', formData.store);
+      const storesCache = queryClient.getQueryData(['stores']);
+      const storesList = storesCache?.data || [];
+      const selectedStore = storesList.find(s => s.name.toLowerCase() === formData.store.toLowerCase());
+      if (selectedStore) {
+        data.append('storeId', selectedStore._id);
+      }
+    }
 
     if (formData.imgFile) {
       data.append('productImage', formData.imgFile);

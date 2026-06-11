@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Calendar, ChevronDown } from 'lucide-react';
+import { Plus, ChevronDown } from 'lucide-react';
+import StoreSelect from './StoreSelect';
 
 const percentageOptions = ['10 %', '20 %', '30 %', '40 %', '50 %', '60 %', '70 %', '80 %', '90 %', 'Free', 'Custom'];
 
@@ -108,13 +109,9 @@ const CreateDealForm = ({ formData, setFormData }) => {
 
         <div className="flex flex-col gap-2 mb-6">
           <label className="text-[13px] font-semibold text-[#0A0A0A]">Store/Retailer</label>
-          <input
-            type="text"
-            name="store"
+          <StoreSelect
             value={formData.store || ''}
-            onChange={handleInputChange}
-            placeholder="e.g. CVS"
-            className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
+            onChange={(storeName) => setFormData(prev => ({ ...prev, store: storeName }))}
           />
         </div>
 
