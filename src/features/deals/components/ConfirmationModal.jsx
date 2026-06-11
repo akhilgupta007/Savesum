@@ -25,13 +25,13 @@ const ConfirmationModal = ({ isOpen, onClose, title, description, confirmText, c
         <div className="flex items-center gap-4 w-full">
           <button 
             onClick={onClose}
-            className="flex-1 py-3 border border-[#B00020] text-[#B00020] rounded-xl text-[14px] font-semibold hover:bg-red-50 transition-colors uppercase"
+            className="flex-1 py-3 border border-[#B00020] text-[#B00020] rounded-xl text-[14px] font-semibold hover:bg-red-50 transition-colors"
           >
             {cancelText}
           </button>
           <button 
             onClick={onConfirm}
-            className={`flex-1 py-3 text-white rounded-xl text-[14px] font-semibold transition-colors uppercase ${
+            className={`flex-1 py-3 text-white rounded-xl text-[14px] font-semibold transition-colors ${
               confirmColor === 'red' 
                 ? 'bg-[#B00020] hover:bg-red-800' 
                 : 'bg-[#005EF8] hover:bg-blue-700'

@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
-import { Search, Trash2, Filter } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Search, Trash2, Filter, ArchiveRestore } from 'lucide-react';
+import dayjs from 'dayjs';
 import EditDealModal from '@/features/deals/components/EditDealModal';
 import ConfirmationModal from '@/features/deals/components/ConfirmationModal';
 import FiltersModal from '@/features/deals/components/FiltersModal';
+import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader';
+import { useDeals } from '@/features/deals/hooks/useDeals';
+import { useUpdateDeal } from '@/features/deals/hooks/useUpdateDeal';
+import { useDeleteDeal } from '@/features/deals/hooks/useDeleteDeal';
 
 const EditIconCustom = () => (
   <svg width="20" height="20" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -17,136 +22,124 @@ const ArchiveIconCustom = () => (
   </svg>
 );
 
-const mockDeals = [
-  {
-    id: 1,
-    name: 'Liquid Hand Soap',
-    upc: '732985029574',
-    store: 'Walgreen',
-    retail: '$4.99',
-    coupon: '-$2.00',
-    rewards: '$2.00',
-    expiry: '24-12-2025',
-    status: 'Active',
-    img: 'https://images.unsplash.com/photo-1584308666744-24d5e4b6e58b?w=80&h=80&fit=crop',
-  },
-  {
-    id: 2,
-    name: 'Citrus Air Freshener',
-    upc: '123456789012',
-    store: 'Target',
-    retail: '$3.49',
-    coupon: '-$1.00',
-    rewards: '$1.00',
-    expiry: '15-03-2026',
-    status: 'Active',
-    img: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=80&h=80&fit=crop',
-  },
-  {
-    id: 3,
-    name: 'Dishwashing Liquid',
-    upc: '098765432109',
-    store: 'Amazon',
-    retail: '$5.79',
-    coupon: '-$1.50',
-    rewards: '$1.50',
-    expiry: '01-09-2025',
-    status: 'Active',
-    img: 'https://images.unsplash.com/photo-1571781926291-c477ebefa4f7?w=80&h=80&fit=crop',
-  },
-  {
-    id: 4,
-    name: 'Bathroom Cleaner',
-    upc: '567890123456',
-    store: 'Costco',
-    retail: '$6.99',
-    coupon: '-$2.50',
-    rewards: '$2.50',
-    expiry: '30-06-2024',
-    status: 'Upcoming',
-    img: 'https://images.unsplash.com/photo-1603398938378-e54eab446dde?w=80&h=80&fit=crop',
-  },
-  {
-    id: 5,
-    name: 'Fabric Softener',
-    upc: '876543210987',
-    store: 'Kroger',
-    retail: '$7.29',
-    coupon: '-$3.00',
-    rewards: '$3.00',
-    expiry: '10-12-2025',
-    status: 'Active',
-    img: 'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=80&h=80&fit=crop',
-  },
-  {
-    id: 6,
-    name: 'All-Purpose Cleaner',
-    upc: '345678901234',
-    store: 'Walmart',
-    retail: '$4.29',
-    coupon: '-$1.75',
-    rewards: '$1.75',
-    expiry: '20-08-2024',
-    status: 'Upcoming',
-    img: 'https://images.unsplash.com/photo-1584483768567-bea5b4df2768?w=80&h=80&fit=crop',
-  },
-];
-
 const StatusBadge = ({ status }) => {
-  const isActive = status === 'Active';
+  let colors = 'bg-[#E6F4EA] text-[#00A152]';
+  if (status === 'Upcoming')  colors = 'bg-[#E8F0FE] text-[#005EF8]';
+  else if (status === 'Archived') colors = 'bg-[#F1F5F9] text-[#475569]';
+  else if (status === 'Draft')    colors = 'bg-[#F3F4F6] text-[#4B5563]';
+  else if (status === 'Expired')  colors = 'bg-[#FEE2E2] text-[#B91C1C]';
+  else if (status === 'Expiring') colors = 'bg-[#FEF3C7] text-[#B45309]';
+
   return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-        isActive
-          ? 'bg-[#E6F4EA] text-[#00A152]'
-          : 'bg-[#FFF4E5] text-[#D97706]'
-      }`}
-    >
+    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[13px] font-medium ${colors}`}>
       {status}
     </span>
   );
 };
 
+const getDealStatus = (deal, nowMs) => {
+  if (deal.isArchived) return 'Archived';
+  if (deal.isDraft) return 'Draft';
+  const endMs = new Date(deal.endDate).getTime();
+  const startMs = new Date(deal.startDate).getTime();
+  if (endMs < nowMs) return 'Expired';
+  if (startMs > nowMs) return 'Upcoming';
+  const hoursLeft = (endMs - nowMs) / (1000 * 60 * 60);
+  if (hoursLeft > 0 && hoursLeft <= 24) return 'Expiring';
+  return 'Active';
+};
+
 const DealsTable = () => {
-  const [editingDeal, setEditingDeal] = useState(null);
+  const [editingDeal, setEditingDeal]     = useState(null);
   const [archivingDeal, setArchivingDeal] = useState(null);
-  const [deletingDeal, setDeletingDeal] = useState(null);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [unarchivingDeal, setUnarchivingDeal] = useState(null);
+  const [deletingDeal, setDeletingDeal]   = useState(null);
+  const [isFilterOpen, setIsFilterOpen]   = useState(false);
+  const [searchQuery, setSearchQuery]     = useState('');
+  const [page, setPage]                   = useState(1);
+  const limit = 10;
+
+  const { data, isLoading } = useDeals({
+    search: searchQuery,
+    pagination: { page, limit },
+  });
+
+  const { mutate: updateDeal, isPending: isUpdating } = useUpdateDeal();
+  const { mutate: deleteDeal, isPending: isDeleting } = useDeleteDeal();
+
+  const rawDeals = data?.data || [];
+  const paginationInfo = data?.pagination || { total: 0, page: 1, limit: 10, pages: 1 };
+
+  const deals = useMemo(() => {
+    const nowMs = Date.now();
+    return rawDeals.map(deal => {
+      const status = getDealStatus(deal, nowMs);
+      return { ...deal, computedStatus: status, isExpiryRed: status === 'Expiring' || status === 'Expired' };
+    });
+  }, [rawDeals]);
+
+  const handleArchiveConfirm = () => {
+    if (!archivingDeal) return;
+    const formData = new FormData();
+    formData.append('isArchived', 'true');
+    updateDeal({ id: archivingDeal._id || archivingDeal.id, formData }, {
+      onSuccess: () => setArchivingDeal(null),
+    });
+  };
+
+  const handleUnarchiveConfirm = () => {
+    if (!unarchivingDeal) return;
+    const formData = new FormData();
+    formData.append('isArchived', 'false');
+    updateDeal({ id: unarchivingDeal._id || unarchivingDeal.id, formData }, {
+      onSuccess: () => setUnarchivingDeal(null),
+    });
+  };
 
   return (
     <div className="bg-white rounded-xl border border-[#EBEBEB] shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col w-full font-inter overflow-hidden">
-      <FiltersModal 
-        isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(false)}
-      />
-      <EditDealModal 
-        isOpen={!!editingDeal} 
-        onClose={() => setEditingDeal(null)} 
-        deal={editingDeal} 
-      />
+      {/* Modals */}
+      <FiltersModal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+      <EditDealModal isOpen={!!editingDeal} onClose={() => setEditingDeal(null)} deal={editingDeal} />
       <ConfirmationModal
         isOpen={!!archivingDeal}
         onClose={() => setArchivingDeal(null)}
         title="ARCHIVE DEAL"
-        description="The deal will be moved to inactive list, but not permanently deleted. You can restore it anytime from your archive settings."
-        confirmText="Archive Deal"
+        description="The deal will be moved to inactive list, but not permanently deleted. You can restore it anytime."
+        confirmText={isUpdating ? 'Archiving...' : 'Archive Deal'}
         confirmColor="blue"
-        onConfirm={() => setArchivingDeal(null)}
+        onConfirm={handleArchiveConfirm}
+      />
+      <ConfirmationModal
+        isOpen={!!unarchivingDeal}
+        onClose={() => setUnarchivingDeal(null)}
+        title="UNARCHIVE DEAL"
+        description="The deal will be moved back to the active list."
+        confirmText={isUpdating ? 'Unarchiving...' : 'Unarchive Deal'}
+        confirmColor="blue"
+        onConfirm={handleUnarchiveConfirm}
       />
       <ConfirmationModal
         isOpen={!!deletingDeal}
         onClose={() => setDeletingDeal(null)}
         title="DELETE DEAL"
         description={<>This action will remove the deal data and history.<br/>You cannot undo this action</>}
-        confirmText="Delete Deal"
+        confirmText={isDeleting ? 'Deleting...' : 'Delete Deal'}
         confirmColor="red"
-        onConfirm={() => setDeletingDeal(null)}
+        onConfirm={() => {
+          if (!deletingDeal) return;
+          deleteDeal(deletingDeal._id || deletingDeal.id, {
+            onSuccess: () => setDeletingDeal(null),
+          });
+        }}
       />
 
+      {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 md:p-6 border-b border-[#EBEBEB] gap-4 md:gap-0">
         <h2 className="text-[20px] font-semibold text-[#0A0A0A]">Recent Deals</h2>
-        
+
         <div className="flex flex-col md:flex-row items-start md:items-center gap-3 w-full md:w-auto">
+          {/* Live Preview Toggle */}
           <div className="flex items-center justify-between md:justify-start gap-3 border border-[#EBEBEB] rounded-full px-4 py-2 bg-white w-full md:w-auto">
             <span className="text-[14px] font-medium text-[#0A0A0A]">Live Preview</span>
             <div className="w-10 h-6 bg-[#EBEBEB] rounded-full relative cursor-pointer flex items-center p-1">
@@ -161,14 +154,15 @@ const DealsTable = () => {
               </div>
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
                 placeholder="Search by item name, store, or UPC..."
-                className="pl-11 pr-4 py-3 md:py-[10px] border border-[#EBEBEB] rounded-xl text-[16px] md:text-sm text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:ring-2 focus:ring-[#005EF8] w-full md:w-[260px]"
+                className="pl-10 pr-4 py-[10px] border border-[#EBEBEB] rounded-xl text-sm text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8] w-full md:w-[260px]"
               />
             </div>
-            
-            <button 
+            <button
               onClick={() => setIsFilterOpen(true)}
-              className="flex items-center justify-center p-3 md:p-[10px] border border-[#EBEBEB] rounded-xl text-[#6A7282] hover:bg-[#F5F5F5] transition-colors shrink-0"
+              className="flex items-center justify-center p-[10px] border border-[#EBEBEB] rounded-xl text-[#6A7282] hover:bg-[#F5F5F5] transition-colors shrink-0"
             >
               <Filter size={18} strokeWidth={1.5} />
             </button>
@@ -176,82 +170,121 @@ const DealsTable = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto w-full">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-[#F9FAFB] border-b border-[#EBEBEB]">
-              <th className="py-4 px-6 text-xs font-semibold text-[#6A7282] uppercase tracking-wider">Item Details</th>
-              <th className="py-4 px-6 text-xs font-semibold text-[#6A7282] uppercase tracking-wider">Store</th>
-              <th className="py-4 px-6 text-xs font-semibold text-[#6A7282] uppercase tracking-wider">Retail</th>
-              <th className="py-4 px-6 text-xs font-semibold text-[#6A7282] uppercase tracking-wider">Coupon</th>
-              <th className="py-4 px-6 text-xs font-semibold text-[#6A7282] uppercase tracking-wider">Rewards</th>
-              <th className="py-4 px-6 text-xs font-semibold text-[#6A7282] uppercase tracking-wider">Expiry</th>
-              <th className="py-4 px-6 text-xs font-semibold text-[#6A7282] uppercase tracking-wider">Status</th>
-              <th className="py-4 px-6 text-xs font-semibold text-[#6A7282] uppercase tracking-wider text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#EBEBEB]">
-            {mockDeals.map((deal) => (
-              <tr key={deal.id} className="hover:bg-[#F9FAFB] transition-colors group">
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-3">
-                    <img src={deal.img} alt={deal.name} className="w-10 h-10 rounded bg-[#EBEBEB]" />
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-[#0A0A0A]">{deal.name}</span>
-                      <span className="text-xs text-[#6A7282]">UPC: {deal.upc}</span>
-                    </div>
-                  </div>
-                </td>
-                <td className="py-4 px-6 text-sm text-[#0A0A0A] font-medium">{deal.store}</td>
-                <td className="py-4 px-6 text-sm text-[#6A7282]">{deal.retail}</td>
-                <td className="py-4 px-6 text-sm font-medium text-[#00A152]">{deal.coupon}</td>
-                <td className="py-4 px-6 text-sm font-medium text-[#005EF8]">{deal.rewards}</td>
-                <td className="py-4 px-6 text-sm text-[#6A7282]">{deal.expiry}</td>
-                <td className="py-4 px-6">
-                  <StatusBadge status={deal.status} />
-                </td>
-                <td className="py-4 px-6 text-right w-[160px]">
-                  <div className="flex items-center justify-end gap-2 md:gap-5">
-                    <button 
-                      onClick={() => setEditingDeal(deal)}
-                      className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors" 
-                      title="Edit"
-                    >
-                      <EditIconCustom />
-                    </button>
-                    <button 
-                      onClick={() => setArchivingDeal(deal)}
-                      className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors" 
-                      title="Archive"
-                    >
-                      <ArchiveIconCustom />
-                    </button>
-                    <button 
-                      onClick={() => setDeletingDeal(deal)}
-                      className="p-2 text-[#B00020] hover:text-red-700 transition-colors" 
-                      title="Delete"
-                    >
-                      <Trash2 size={20} strokeWidth={1.5} />
-                    </button>
-                  </div>
-                </td>
+      {/* Table Body */}
+      <div className="overflow-x-auto w-full min-h-[300px]">
+        {isLoading ? (
+          <UniversalLoader />
+        ) : deals.length === 0 ? (
+          <div className="flex items-center justify-center h-[300px] text-[#6A7282]">No deals found.</div>
+        ) : (
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-[#EBEBEB]">
+                <th className="py-4 px-6 text-sm font-medium text-[#6A7282] font-normal">Item Details</th>
+                <th className="py-4 px-6 text-sm font-medium text-[#6A7282] font-normal">Store</th>
+                <th className="py-4 px-6 text-sm font-medium text-[#6A7282] font-normal">Retail</th>
+                <th className="py-4 px-6 text-sm font-medium text-[#6A7282] font-normal">Coupon</th>
+                <th className="py-4 px-6 text-sm font-medium text-[#6A7282] font-normal">Rewards</th>
+                <th className="py-4 px-6 text-sm font-medium text-[#6A7282] font-normal">Expiry</th>
+                <th className="py-4 px-6 text-sm font-medium text-[#6A7282] font-normal">Status</th>
+                <th className="py-4 px-6 text-sm font-medium text-[#6A7282] font-normal text-center w-[120px]">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-[#EBEBEB]">
+              {deals.map((deal) => (
+                <tr key={deal._id} className="hover:bg-[#F9FAFB] transition-colors">
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={deal.productImageUrl || 'https://via.placeholder.com/80'}
+                        alt={deal.productName}
+                        className="w-10 h-10 rounded bg-[#EBEBEB] object-cover"
+                      />
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[14px] font-medium text-[#0A0A0A]">{deal.productName}</span>
+                        <span className="text-[12px] text-[#6A7282]">UPC: {deal.upcCode}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6 text-[14px] text-[#0A0A0A] font-medium">{deal.store}</td>
+                  <td className="py-4 px-6 text-[14px] text-[#0A0A0A]">${deal.retailPrice?.toFixed(2) || '0.00'}</td>
+                  <td className="py-4 px-6 text-[14px] font-medium text-[#00A152]">-${deal.couponAmount?.toFixed(2) || '0.00'}</td>
+                  <td className="py-4 px-6 text-[14px] font-medium text-[#00A152]">${deal.couponAmount?.toFixed(2) || '0.00'}</td>
+                  <td className={`py-4 px-6 text-[14px] ${deal.isExpiryRed ? 'text-[#B00020]' : 'text-[#0A0A0A]'}`}>
+                    {dayjs(deal.endDate).format('DD-MM-YYYY')}
+                  </td>
+                  <td className="py-4 px-6">
+                    <StatusBadge status={deal.computedStatus} />
+                  </td>
+                  <td className="py-4 px-6 w-[120px]">
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        onClick={() => setEditingDeal(deal)}
+                        className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors"
+                        title="Edit"
+                      >
+                        <EditIconCustom />
+                      </button>
+                      {deal.isArchived ? (
+                        <button
+                          onClick={() => setUnarchivingDeal(deal)}
+                          className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors"
+                          title="Unarchive"
+                        >
+                          <ArchiveRestore size={20} strokeWidth={1.5} />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setArchivingDeal(deal)}
+                          className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors"
+                          title="Archive"
+                        >
+                          <ArchiveIconCustom />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setDeletingDeal(deal)}
+                        className="p-2 text-[#B00020] hover:text-red-700 transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 size={20} strokeWidth={1.5} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
-      {/* Pagination Footer */}
-      <div className="flex items-center justify-between p-6 border-t border-[#EBEBEB]">
-        <span className="text-[13px] text-[#6A7282]">Showing 1-6 of 50</span>
-        <div className="flex items-center gap-1">
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium text-[#6A7282] hover:bg-[#F5F5F5]">&lt;</button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium bg-[#E8F0FE] text-[#005EF8]">1</button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium text-[#6A7282] hover:bg-[#F5F5F5]">2</button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium text-[#6A7282] hover:bg-[#F5F5F5]">3</button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium text-[#6A7282] hover:bg-[#F5F5F5]">&gt;</button>
+      {/* Pagination */}
+      {!isLoading && deals.length > 0 && (
+        <div className="flex items-center justify-between p-6 border-t border-[#EBEBEB]">
+          <span className="text-[13px] text-[#6A7282]">
+            Showing {((paginationInfo.page - 1) * limit) + 1}–{Math.min(paginationInfo.page * limit, paginationInfo.total)} of {paginationInfo.total}
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium text-[#6A7282] hover:bg-[#F5F5F5] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              &lt;
+            </button>
+            <button className="w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium bg-[#E8F0FE] text-[#005EF8]">
+              {page}
+            </button>
+            <button
+              onClick={() => setPage(p => Math.min(paginationInfo.pages, p + 1))}
+              disabled={page === paginationInfo.pages || paginationInfo.pages === 0}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium text-[#6A7282] hover:bg-[#F5F5F5] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              &gt;
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

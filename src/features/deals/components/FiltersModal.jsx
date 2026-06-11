@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Calendar, ChevronDown, Check } from 'lucide-react';
 
 const Checkbox = ({ label, checked, onChange }) => (
@@ -10,8 +10,8 @@ const Checkbox = ({ label, checked, onChange }) => (
   </div>
 );
 
-const FiltersModal = ({ isOpen, onClose }) => {
-  const [stores, setStores] = useState({
+const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
+  const [stores, setStores] = useState(currentFilters?.stores || {
     'CVS': false,
     'Walgreens': false,
     'Rite Aid': false,
@@ -19,7 +19,7 @@ const FiltersModal = ({ isOpen, onClose }) => {
     'Walmart': true
   });
 
-  const [rewardTypes, setRewardTypes] = useState({
+  const [rewardTypes, setRewardTypes] = useState(currentFilters?.rewardTypes || {
     'ExtraBucks (ECB)': false,
     'Promo credit': false,
     'Cash rewards': true,
@@ -28,9 +28,19 @@ const FiltersModal = ({ isOpen, onClose }) => {
     'Loyalty points': false
   });
 
-  const [sortBy, setSortBy] = useState('Value (high - low)');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [sortBy, setSortBy] = useState(currentFilters?.sortBy || 'Value (high - low)');
+  const [startDate, setStartDate] = useState(currentFilters?.startDate || '');
+  const [endDate, setEndDate] = useState(currentFilters?.endDate || '');
+
+  useEffect(() => {
+    if (isOpen && currentFilters) {
+      if (currentFilters.stores) setStores(currentFilters.stores);
+      if (currentFilters.rewardTypes) setRewardTypes(currentFilters.rewardTypes);
+      if (currentFilters.sortBy) setSortBy(currentFilters.sortBy);
+      if (currentFilters.startDate) setStartDate(currentFilters.startDate);
+      if (currentFilters.endDate) setEndDate(currentFilters.endDate);
+    }
+  }, [isOpen, currentFilters]);
 
   if (!isOpen) return null;
 
@@ -52,6 +62,19 @@ const FiltersModal = ({ isOpen, onClose }) => {
 
   const selectedStores = Object.entries(stores).filter(([_, checked]) => checked).map(([name]) => name);
   const selectedRewards = Object.entries(rewardTypes).filter(([_, checked]) => checked).map(([name]) => name);
+
+  const handleApply = () => {
+    if (onApply) {
+      onApply({
+        stores,
+        rewardTypes,
+        sortBy,
+        startDate,
+        endDate
+      });
+    }
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 font-inter p-4">
@@ -186,7 +209,7 @@ const FiltersModal = ({ isOpen, onClose }) => {
             Clear All
           </button>
           <button 
-            onClick={onClose}
+            onClick={handleApply}
             className="px-8 py-3 rounded-xl bg-[#005EF8] text-[14px] font-bold text-white hover:bg-blue-700 transition-colors shadow-md"
           >
             Apply Filters

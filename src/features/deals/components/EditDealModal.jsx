@@ -1,7 +1,80 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, Calendar, Plus } from 'lucide-react';
+import { useUpdateDeal } from '../hooks/useUpdateDeal';
+import dayjs from 'dayjs';
 
 const EditDealModal = ({ isOpen, onClose, deal }) => {
+  const { mutate: updateDeal, isPending: isUpdating } = useUpdateDeal();
+  const fileInputRef = useRef(null);
+  const [formData, setFormData] = useState({});
+  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+
+  useEffect(() => {
+    if (deal && isOpen) {
+      setFormData({
+        productName: deal.productName || '',
+        upcCode: deal.upcCode || '',
+        store: deal.store || '',
+        retailPrice: deal.retailPrice || '',
+        couponAmount: deal.couponAmount || '',
+        couponType: deal.couponType || 'Digital',
+        rewardName: deal.rewardName || '',
+        rewardAmount: deal.rewardAmount || '',
+        startDate: deal.startDate ? dayjs(deal.startDate).format('YYYY-MM-DD') : '',
+        endDate: deal.endDate ? dayjs(deal.endDate).format('YYYY-MM-DD') : '',
+      });
+      setImagePreview(deal.productImageUrl || null);
+      setImageFile(null);
+    }
+  }, [deal, isOpen]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = (isDraft) => {
+    const data = new FormData();
+    Object.keys(formData).forEach(key => {
+      if (formData[key] !== '' && formData[key] !== null) {
+        if (key === 'couponType') {
+          // Edit deal modal has 'Digital' or 'Paper'. We map anything with % to percentage, else flat
+          const typeValue = formData.couponType.includes('%') ? 'percentage' : 'flat';
+          data.append('couponType', typeValue);
+        } else {
+          data.append(key, formData[key]);
+        }
+      }
+    });
+    
+    if (imageFile) {
+      data.append('productImage', imageFile);
+    }
+    
+    if (isDraft !== undefined) {
+      data.append('isDraft', isDraft ? 'true' : 'false');
+    }
+
+    updateDeal({ id: deal._id || deal.id, formData: data }, {
+      onSuccess: () => {
+        onClose();
+      }
+    });
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -35,7 +108,9 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
               <label className="text-[13px] font-semibold text-[#0A0A0A]">Product Name</label>
               <input 
                 type="text" 
-                defaultValue={deal?.name || ''}
+                name="productName"
+                value={formData.productName}
+                onChange={handleInputChange}
                 placeholder="e.g. Pain Relief Caplets"
                 className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
               />
@@ -44,7 +119,9 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
               <label className="text-[13px] font-semibold text-[#0A0A0A]">UPC Code</label>
               <input 
                 type="text" 
-                defaultValue={deal?.upc || ''}
+                name="upcCode"
+                value={formData.upcCode}
+                onChange={handleInputChange}
                 placeholder="012345678901"
                 className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
               />
@@ -57,7 +134,9 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
               <label className="text-[13px] font-semibold text-[#0A0A0A]">Store</label>
               <input 
                 type="text" 
-                defaultValue={deal?.store || ''}
+                name="store"
+                value={formData.store}
+                onChange={handleInputChange}
                 placeholder="e.g. Walmart"
                 className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
               />
@@ -67,8 +146,11 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#6A7282]">$</div>
                 <input 
-                  type="text" 
-                  defaultValue={deal?.retail ? deal.retail.replace('$', '') : ''}
+                  type="number" 
+                  step="0.01"
+                  name="retailPrice"
+                  value={formData.retailPrice}
+                  onChange={handleInputChange}
                   placeholder="0.00"
                   className="w-full pl-8 pr-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
                 />
@@ -83,8 +165,11 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#6A7282]">$</div>
                 <input 
-                  type="text" 
-                  defaultValue={deal?.coupon ? deal.coupon.replace('-$', '') : ''}
+                  type="number" 
+                  step="0.01"
+                  name="couponAmount"
+                  value={formData.couponAmount}
+                  onChange={handleInputChange}
                   placeholder="0.00"
                   className="w-full pl-8 pr-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
                 />
@@ -92,10 +177,14 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-[13px] font-semibold text-[#0A0A0A]">Coupon Type</label>
-              <select className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] bg-white focus:outline-none focus:border-[#005EF8]">
-                <option>Select</option>
-                <option>Digital</option>
-                <option>Paper</option>
+              <select 
+                name="couponType"
+                value={formData.couponType}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] bg-white focus:outline-none focus:border-[#005EF8]"
+              >
+                <option value="Digital">Digital</option>
+                <option value="Paper">Paper</option>
               </select>
             </div>
           </div>
@@ -106,6 +195,9 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
               <label className="text-[13px] font-semibold text-[#0A0A0A]">Reward Name</label>
               <input 
                 type="text" 
+                name="rewardName"
+                value={formData.rewardName}
+                onChange={handleInputChange}
                 placeholder="e.g. ExtraBucks"
                 className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
               />
@@ -115,8 +207,11 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#6A7282]">$</div>
                 <input 
-                  type="text" 
-                  defaultValue={deal?.rewards ? deal.rewards.replace('$', '') : ''}
+                  type="number" 
+                  step="0.01"
+                  name="rewardAmount"
+                  value={formData.rewardAmount}
+                  onChange={handleInputChange}
                   placeholder="0.00"
                   className="w-full pl-8 pr-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
                 />
@@ -133,27 +228,24 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
                 <label className="text-[13px] font-semibold text-[#0A0A0A]">Start Date</label>
                 <div className="relative">
                   <input 
-                    type="text" 
-                    placeholder="DD-MM-YYYY"
-                    className="w-full pl-4 pr-10 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
+                    type="date" 
+                    name="startDate"
+                    value={formData.startDate}
+                    onChange={handleInputChange}
+                    className="w-full pl-4 pr-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
                   />
-                  <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                    <Calendar size={18} className="text-[#6A7282]" />
-                  </div>
                 </div>
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-[13px] font-semibold text-[#0A0A0A]">End Date</label>
                 <div className="relative">
                   <input 
-                    type="text" 
-                    defaultValue={deal?.expiry && deal.expiry !== 'In 24 hrs' ? deal.expiry : ''}
-                    placeholder="DD-MM-YYYY"
-                    className="w-full pl-4 pr-10 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
+                    type="date" 
+                    name="endDate"
+                    value={formData.endDate}
+                    onChange={handleInputChange}
+                    className="w-full pl-4 pr-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
                   />
-                  <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                    <Calendar size={18} className="text-[#6A7282]" />
-                  </div>
                 </div>
               </div>
             </div>
@@ -165,14 +257,17 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
                 {/* Existing Image Thumbnail */}
                 <div className="w-[120px] bg-[#EBEBEB] rounded-xl overflow-hidden flex-shrink-0">
                   <img 
-                    src={deal?.img || "https://images.unsplash.com/photo-1584308666744-24d5e4b6e58b?w=80&h=80&fit=crop"} 
+                    src={imagePreview || "https://images.unsplash.com/photo-1584308666744-24d5e4b6e58b?w=80&h=80&fit=crop"} 
                     alt="Product" 
                     className="w-full h-full object-cover"
                   />
                 </div>
                 
                 {/* Drag and Drop Zone */}
-                <div className="flex-1 border border-dashed border-[#D1D5DC] rounded-xl flex flex-col items-center justify-center p-4 bg-white hover:bg-gray-50 transition-colors cursor-pointer">
+                <div 
+                  className="flex-1 border border-dashed border-[#D1D5DC] rounded-xl flex flex-col items-center justify-center p-4 bg-white hover:bg-gray-50 transition-colors cursor-pointer relative overflow-hidden"
+                  onClick={() => fileInputRef.current?.click()}
+                >
                   <div className="w-10 h-10 bg-[#E8F0FE] rounded-full flex items-center justify-center text-[#005EF8] mb-3">
                     <Plus size={20} strokeWidth={2.5} />
                   </div>
@@ -182,6 +277,13 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
                   <p className="text-[11px] text-[#6A7282] mt-1 text-center">
                     Supports PNG, JPG (Max 5MB)
                   </p>
+                  <input
+                    type="file"
+                    accept="image/png, image/jpeg"
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={handleImageUpload}
+                  />
                 </div>
               </div>
             </div>
@@ -194,15 +296,38 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
         <div className="flex items-center gap-4 px-8 py-6 border-t border-[#EBEBEB] bg-white">
           <button 
             onClick={onClose}
-            className="flex-1 py-3 border border-[#B00020] text-[#B00020] rounded-xl text-[14px] font-semibold hover:bg-red-50 transition-colors"
+            disabled={isUpdating}
+            className="flex-1 py-3 border border-[#B00020] text-[#B00020] rounded-xl text-[14px] font-semibold hover:bg-red-50 transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
-          <button 
-            className="flex-1 py-3 bg-[#005EF8] text-white rounded-xl text-[14px] font-semibold hover:bg-blue-700 transition-colors"
-          >
-            Update Deal
-          </button>
+          
+          {deal?.isDraft ? (
+            <>
+              <button 
+                onClick={() => handleSubmit(true)}
+                disabled={isUpdating}
+                className="flex-1 py-3 bg-white border border-[#005EF8] text-[#005EF8] rounded-xl text-[14px] font-semibold hover:bg-blue-50 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isUpdating ? 'Saving...' : 'Save as Draft'}
+              </button>
+              <button 
+                onClick={() => handleSubmit(false)}
+                disabled={isUpdating}
+                className="flex-1 py-3 bg-[#005EF8] text-white rounded-xl text-[14px] font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isUpdating ? 'Publishing...' : 'Publish Deal'}
+              </button>
+            </>
+          ) : (
+            <button 
+              onClick={() => handleSubmit(undefined)}
+              disabled={isUpdating}
+              className="flex-1 py-3 bg-[#005EF8] text-white rounded-xl text-[14px] font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {isUpdating ? 'Updating...' : 'Update Deal'}
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -210,3 +335,4 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
 };
 
 export default EditDealModal;
+

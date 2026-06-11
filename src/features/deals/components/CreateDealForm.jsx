@@ -32,7 +32,7 @@ const CreateDealForm = ({ formData, setFormData }) => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, img: reader.result }));
+        setFormData(prev => ({ ...prev, img: reader.result, imgFile: file }));
       };
       reader.readAsDataURL(file);
     }

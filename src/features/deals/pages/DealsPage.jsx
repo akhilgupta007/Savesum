@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import DashboardLayout from '@/components/Layout/DashboardLayout';
 import DealsInventoryTable from '../components/DealsInventoryTable';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const DealsPage = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
   return (
     <div className="flex flex-col gap-8 w-full max-w-full pb-8">
       <div className="flex items-center justify-between mb-2 w-full">
@@ -13,12 +17,14 @@ const DealsPage = () => {
           </div>
           <input
             type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by item name, store, or UPC..."
             className="pl-11 pr-4 py-3 md:py-[10px] border border-[#EBEBEB] rounded-xl text-[16px] md:text-sm text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:ring-2 focus:ring-[#005EF8] w-full md:w-[320px]"
           />
         </div>
       </div>
-      <DealsInventoryTable />
+      <DealsInventoryTable searchQuery={debouncedSearchTerm} />
     </div>
   );
 };
