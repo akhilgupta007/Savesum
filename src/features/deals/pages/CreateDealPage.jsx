@@ -82,7 +82,7 @@ const CreateDealPage = () => {
     });
 
     if (formData.store) {
-      data.append('store', formData.store);
+      data.append('storeName', formData.store);
       const storesCache = queryClient.getQueryData(['stores']);
       const storesList = storesCache?.data || [];
       const selectedStore = storesList.find(s => s.name.toLowerCase() === formData.store.toLowerCase());

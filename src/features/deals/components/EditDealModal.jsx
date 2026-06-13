@@ -66,7 +66,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
     });
 
     if (formData.store) {
-      data.append('store', formData.store);
+      data.append('storeName', formData.store);
       // Match store name to id via cache
       const storesCache = queryClient.getQueryData(['stores']);
       const cacheList = storesCache?.data || [];
