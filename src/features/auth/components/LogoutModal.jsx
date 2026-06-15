@@ -21,7 +21,7 @@ const LogoutModal = ({ isOpen, onClose, onConfirm }) => {
         {/* Subtitle */}
         <p className="text-[16px] text-[#4A4A4A] font-inter mb-10 leading-relaxed max-w-[360px]">
           Are you sure you want to log out?<br/>
-          You will need to sign in again to access your trips.
+          You will need to sign in again to access your savings dashboard.
         </p>
 
         {/* Buttons */}

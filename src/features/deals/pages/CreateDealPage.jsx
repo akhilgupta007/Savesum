@@ -6,7 +6,6 @@ import DashboardLayout from '@/components/Layout/DashboardLayout';
 import CreateDealForm from '../components/CreateDealForm';
 import MobilePreview from '../components/MobilePreview';
 import ConfirmationModal from '../components/ConfirmationModal';
-import SuccessModal from '../components/SuccessModal';
 import { useCreateDeal } from '../hooks/useCreateDeal';
 import { useQueryClient } from '@tanstack/react-query';
 import { formatRelativeTime } from '@/utils/formatDate';
@@ -19,7 +18,6 @@ const CreateDealPage = () => {
   const [formData, setFormData] = useState({});
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [isPublishOpen, setIsPublishOpen] = useState(false);
-  const [successType, setSuccessType] = useState(null); // 'draft' | 'publish' | null
   
   // Dynamic Text State
   const [lastSavedTime, setLastSavedTime] = useState(null);
@@ -107,7 +105,7 @@ const CreateDealPage = () => {
     const data = constructApiPayload(false);
     createDeal(data, {
       onSuccess: () => {
-        setSuccessType('publish');
+        navigate(ROUTES.DEALS, { state: { showSuccess: 'publish' } });
       }
     });
   };
@@ -116,14 +114,9 @@ const CreateDealPage = () => {
     const data = constructApiPayload(true);
     createDeal(data, {
       onSuccess: () => {
-        setSuccessType('draft');
+        navigate(ROUTES.DEALS, { state: { showSuccess: 'draft' } });
       }
     });
-  };
-
-  const handleSuccessClose = () => {
-    setSuccessType(null);
-    navigate(ROUTES.DEALS);
   };
 
   return (
@@ -162,12 +155,6 @@ const CreateDealPage = () => {
         confirmText={isCreating ? "PUBLISHING..." : "YES"}
         confirmColor="blue"
         onConfirm={handlePublishConfirm}
-      />
-
-      <SuccessModal
-        isOpen={!!successType}
-        onClose={handleSuccessClose}
-        type={successType}
       />
 
       <div className="flex flex-col h-full relative">
@@ -222,7 +209,7 @@ const CreateDealPage = () => {
               disabled={isCreating || !isComplete}
               className="flex-1 lg:flex-none px-4 lg:px-6 py-2.5 text-[13px] lg:text-[14px] font-bold text-white bg-[#005EF8] hover:bg-blue-700 rounded-xl transition-colors shadow-md disabled:opacity-50 whitespace-nowrap"
             >
-              Publish
+              {isCreating ? 'Publishing...' : 'Publish'}
             </button>
           </div>
         </div>

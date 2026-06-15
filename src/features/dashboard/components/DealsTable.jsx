@@ -64,7 +64,7 @@ const DealsTable = () => {
   const activeRewards = modalFilters ? Object.entries(modalFilters.rewardTypes).filter(([_, v]) => v).map(([k]) => k) : [];
 
   const apiFilters = modalFilters ? {
-    ...(activeStores.length > 0 && { storeId: activeStores }),
+    ...(activeStores.length > 0 && { stores: activeStores }),
     ...(activeRewards.length > 0 && { rewardTypes: activeRewards }),
     dateRange: (modalFilters.startDate || modalFilters.endDate) ? {
       startDate: modalFilters.startDate || undefined,
@@ -75,7 +75,7 @@ const DealsTable = () => {
   const { data, isLoading } = useDeals({
     search: searchQuery,
     filters: apiFilters,
-    sort: modalFilters?.sortBy ? { field: 'retailPrice', order: modalFilters.sortBy.includes('high') ? 'desc' : 'asc' } : undefined,
+    sort: modalFilters?.sortBy ? { field: 'value', order: modalFilters.sortBy.includes('high') ? 'desc' : 'asc' } : undefined,
     pagination: { page, limit },
   });
 
@@ -229,11 +229,22 @@ const DealsTable = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="py-4 px-6 text-[14px] text-[#0A0A0A] font-medium">{deal.store}</td>
+                  <td className="py-4 px-6 text-[14px] text-[#0A0A0A] font-medium">{deal.storeName || deal.store || '—'}</td>
                   <td className="py-4 px-6 text-[14px] text-[#0A0A0A]">${deal.retailPrice?.toFixed(2) || '0.00'}</td>
                   <td className="py-4 px-6 text-[14px] font-medium text-[#00A152]">-${deal.couponAmount?.toFixed(2) || '0.00'}</td>
-                  <td className="py-4 px-6 text-[14px] font-medium text-[#00A152]">${deal.couponAmount?.toFixed(2) || '0.00'}</td>
-                  <td className={`py-4 px-6 text-[14px] ${deal.isExpiryRed ? 'text-[#B00020]' : 'text-[#0A0A0A]'}`}>
+                  <td className="py-4 px-6 text-[14px] font-medium text-[#00A152]">
+                    {deal.rewardName ? (
+                      <div className="flex flex-col">
+                        <span className="text-[#00A152]">{deal.rewardName}</span>
+                        <span className="text-[#00A152]">${deal.rewardAmount?.toFixed(2) || '0.00'}</span>
+                      </div>
+                    ) : deal.rewardAmount ? (
+                      `$${deal.rewardAmount.toFixed(2)}`
+                    ) : (
+                      '—'
+                    )}
+                  </td>
+                  <td className={`py-4 px-6 text-[14px] whitespace-nowrap ${deal.isExpiryRed ? 'text-[#B00020]' : 'text-[#0A0A0A]'}`}>
                     {dayjs(deal.endDate).format('DD-MM-YYYY')}
                   </td>
                   <td className="py-4 px-6">

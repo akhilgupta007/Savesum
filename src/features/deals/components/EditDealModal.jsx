@@ -3,6 +3,7 @@ import { X, Calendar, Plus } from 'lucide-react';
 import { useUpdateDeal } from '../hooks/useUpdateDeal';
 import { useQueryClient } from '@tanstack/react-query';
 import StoreSelect from './StoreSelect';
+import RewardTypeSelect from './RewardTypeSelect';
 import dayjs from 'dayjs';
 
 const EditDealModal = ({ isOpen, onClose, deal }) => {
@@ -205,13 +206,9 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-[13px] font-semibold text-[#0A0A0A]">Reward Name</label>
-              <input 
-                type="text" 
-                name="rewardName"
-                value={formData.rewardName}
-                onChange={handleInputChange}
-                placeholder="e.g. ExtraBucks"
-                className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
+              <RewardTypeSelect
+                value={formData.rewardName || ''}
+                onChange={(val) => setFormData(prev => ({ ...prev, rewardName: val }))}
               />
             </div>
             <div className="flex flex-col gap-2">

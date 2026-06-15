@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -31,6 +31,7 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
   const { mutate: login, isPending } = useLogin();
 
   const {
@@ -58,7 +59,9 @@ const LoginForm = () => {
           })
         );
         toast.success('Login successful!');
-        navigate(ROUTES.DASHBOARD);
+        // Redirect back to the page the user was trying to access, or dashboard
+        const from = location.state?.from?.pathname || ROUTES.DASHBOARD;
+        navigate(from, { replace: true });
       },
       onError: (err) => {
         const errorMessage = err.response?.data?.message || 'Login failed';

@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
-import { API_URL } from '@/constants/app.constants';
+import { authService } from '../services/auth.service';
 import { setCredentials, clearCredentials, setLoading } from '../store/authSlice';
 import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader';
 
@@ -19,19 +18,20 @@ const AuthInitWrapper = ({ children }) => {
       }
 
       try {
-        const response = await axios.post(`${API_URL}/auth/refresh`, {
-          refreshToken,
-        });
-        
+        // Use authService so the call goes through the configured axios instance
+        // (interceptors, base URL, timeout, etc.)
+        const response = await authService.refresh({ refreshToken });
+
         const { accessToken, refreshToken: newRefreshToken, userObject } = response.data.data;
-        
+
         localStorage.setItem('refreshToken', newRefreshToken);
-        
+
         dispatch(setCredentials({
           user: userObject || null,
           accessToken,
         }));
-      } catch (error) {
+      } catch {
+        // Refresh token expired or invalid — clear everything and let the user log in again
         localStorage.removeItem('refreshToken');
         dispatch(clearCredentials());
       } finally {

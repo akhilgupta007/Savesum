@@ -15,21 +15,14 @@ const AnalyticsPage = () => {
         <StatCard 
           title="TOTAL CLICKS"
           valueNode={<span className="text-[32px] font-bold text-[#005EF8]">842,109</span>}
-          subtextNode={
-            <>
-              <span className="text-[#10B981]">+12.5%</span> <span className="text-[#8C8C8C]">from last week</span>
-            </>
-          }
         />
         <StatCard 
           title="MOST POPULAR STORE"
           valueNode={<span className="text-[32px] font-bold text-[#10B981]">CVS</span>}
-          subtextNode={<span className="text-[#8C8C8C]">24.2k redemptions</span>}
         />
         <StatCard 
           title="USER GROWTH"
           valueNode={<span className="text-[32px] font-bold text-[#005EF8]">12.8k</span>}
-          subtextNode={<span className="text-[#8C8C8C]">+4.2% from last week</span>}
         />
       </div>
 

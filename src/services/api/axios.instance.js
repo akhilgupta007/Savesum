@@ -94,12 +94,13 @@ api.interceptors.response.use(
         return api(originalRequest)
       } catch (err) {
         processQueue(err, null)
-        
-        // Refresh failed (token expired/invalid), wipe everything
+
+        // Refresh failed — wipe local session.
+        // Do NOT navigate here; PrivateRoute reads isAuthenticated from Redux
+        // and will redirect to /login automatically on the next render.
         store.dispatch(clearCredentials())
         localStorage.removeItem('refreshToken')
-        window.location.href = '/login'
-        
+
         return Promise.reject(err)
       } finally {
         isRefreshing = false
