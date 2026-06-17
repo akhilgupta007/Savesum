@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import AnalyticsHeader from '../components/AnalyticsHeader';
 import StatCard from '../components/StatCard';
 import MostUsedDeals from '../components/MostUsedDeals';
@@ -10,6 +10,8 @@ import { downloadCsv } from '@/utils/exportCsv';
 
 const AnalyticsPage = () => {
   const { data: stats, isLoading, isError } = useAnalyticsStats();
+  const [currentFilters, setCurrentFilters] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleExport = () => {
     if (!stats) {
@@ -49,6 +51,66 @@ const AnalyticsPage = () => {
     toast.success('Analytics report exported as CSV');
   };
 
+  // Filter and search deals
+  const filteredDeals = useMemo(() => {
+    if (!stats?.mostUsedDeals) return [];
+
+    let filtered = [...stats.mostUsedDeals];
+
+    // Apply store filters
+    if (currentFilters?.stores) {
+      const selectedStores = Object.entries(currentFilters.stores)
+        .filter(([_, checked]) => checked)
+        .map(([id]) => id);
+      
+      if (selectedStores.length > 0) {
+        filtered = filtered.filter(deal => selectedStores.includes(deal.storeId));
+      }
+    }
+
+    // Apply reward type filters
+    if (currentFilters?.rewardTypes) {
+      const selectedRewards = Object.entries(currentFilters.rewardTypes)
+        .filter(([_, checked]) => checked)
+        .map(([name]) => name);
+      
+      if (selectedRewards.length > 0) {
+        filtered = filtered.filter(deal => selectedRewards.includes(deal.rewardType));
+      }
+    }
+
+    // Apply search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(deal => 
+        (deal.productName?.toLowerCase().includes(query)) ||
+        (deal.storeName?.toLowerCase().includes(query))
+      );
+    }
+
+    // Apply sort
+    if (currentFilters?.sortBy) {
+      switch (currentFilters.sortBy) {
+        case 'Value (high - low)':
+          filtered.sort((a, b) => (b.couponAmount || 0) - (a.couponAmount || 0));
+          break;
+        case 'Value (low - high)':
+          filtered.sort((a, b) => (a.couponAmount || 0) - (b.couponAmount || 0));
+          break;
+        case 'Newest first':
+          filtered.sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)));
+          break;
+        case 'Expiring Soon':
+          filtered.sort((a, b) => dayjs(a.endDate).diff(dayjs(b.endDate)));
+          break;
+        default:
+          break;
+      }
+    }
+
+    return filtered;
+  }, [stats?.mostUsedDeals, currentFilters, searchQuery]);
+
   if (isLoading) {
     return (
       <div className="flex flex-col w-full max-w-full pb-8">
@@ -71,7 +133,13 @@ const AnalyticsPage = () => {
 
   return (
     <div className="flex flex-col w-full max-w-full pb-8">
-      <AnalyticsHeader onExport={handleExport} />
+      <AnalyticsHeader 
+        onExport={handleExport}
+        onFilterChange={setCurrentFilters}
+        onSearchChange={setSearchQuery}
+        currentFilters={currentFilters}
+        currentSearch={searchQuery}
+      />
       
       {/* Stat Cards Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-6">
@@ -91,7 +159,7 @@ const AnalyticsPage = () => {
 
       {/* Bottom Layout */}
       <div className="w-full">
-        <MostUsedDeals deals={stats.mostUsedDeals || []} />
+        <MostUsedDeals deals={filteredDeals} />
       </div>
     </div>
   );
