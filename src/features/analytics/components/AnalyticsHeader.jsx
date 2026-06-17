@@ -1,7 +1,7 @@
 import React from 'react';
-import { Calendar, Search, Filter, Upload } from 'lucide-react';
+import { Calendar, Search, Filter, Download } from 'lucide-react';
 
-const AnalyticsHeader = () => {
+const AnalyticsHeader = ({ onExport, isExporting = false }) => {
   return (
     <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4 md:gap-0">
       <h1 className="text-[24px] font-semibold text-[#0A0A0A]">Overview</h1>
@@ -16,9 +16,15 @@ const AnalyticsHeader = () => {
         <button className="w-11 h-11 md:w-10 md:h-10 flex items-center justify-center bg-white border border-[#EBEBEB] rounded-xl text-[#0A0A0A] hover:bg-gray-50 transition-colors">
           <Filter size={16} className="text-[#0A0A0A]" />
         </button>
-        <button className="w-full md:w-auto flex items-center justify-center gap-2 px-5 h-11 md:h-10 bg-[#005EF8] rounded-xl text-[14px] md:text-[13px] text-white font-medium font-inter hover:bg-[#005EF8]/90 transition-colors mt-2 md:mt-0">
-          <Upload size={16} />
-          Export Report
+        <button
+          type="button"
+          onClick={onExport}
+          disabled={!onExport || isExporting}
+          title="Export CSV"
+          className="w-full md:w-auto flex items-center justify-center gap-2 px-5 h-11 md:h-10 bg-[#005EF8] rounded-xl text-[14px] md:text-[13px] text-white font-medium font-inter hover:bg-[#005EF8]/90 transition-colors mt-2 md:mt-0 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <Download size={16} />
+          {isExporting ? 'Exporting CSV...' : 'Export CSV'}
         </button>
       </div>
     </div>

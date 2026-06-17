@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Upload, Filter, Plus, ArchiveRestore } from 'lucide-react';
+import { Trash2, Download, Filter, Plus, ArchiveRestore } from 'lucide-react';
 import { ROUTES } from '@/constants/routes.constants';
 import dayjs from 'dayjs';
 import EditDealModal from './EditDealModal';
@@ -10,6 +10,9 @@ import { useDeals } from '../hooks/useDeals';
 import { useUpdateDeal } from '../hooks/useUpdateDeal';
 import { useDeleteDeal } from '../hooks/useDeleteDeal';
 import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader';
+import { fetchDeals } from '../services/deals.service';
+import toast from 'react-hot-toast';
+import { downloadCsv } from '@/utils/exportCsv';
 
 const EditIconCustom = () => (
   <svg width="20" height="20" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -97,6 +100,7 @@ const DealsInventoryTable = ({ searchQuery }) => {
   const [unarchivingDeal, setUnarchivingDeal] = useState(null);
   const [deletingDeal, setDeletingDeal] = useState(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Pagination & Filters state
   const [page, setPage] = useState(1);
@@ -173,6 +177,65 @@ const DealsInventoryTable = ({ searchQuery }) => {
     setPage(1); // Reset to first page on filter change
   };
 
+  const handleExport = async () => {
+    if (isExporting) {
+      return;
+    }
+
+    setIsExporting(true);
+
+    try {
+      const exportLimit = paginationInfo.total > 0 ? paginationInfo.total : limit;
+      const response = await fetchDeals({
+        search: searchQuery,
+        filters: apiFilters,
+        sort: sortParam,
+        pagination: { page: 1, limit: exportLimit },
+      });
+
+      const exportDeals = response?.data || [];
+
+      if (exportDeals.length === 0) {
+        toast.error('No deals available to export');
+        return;
+      }
+
+      const rows = [
+        ['Savesum Deals Export'],
+        ['Exported At', dayjs().format('YYYY-MM-DD HH:mm')],
+        ['Search Query', searchQuery || 'All deals'],
+        ['Active Tab', activeTab],
+        [],
+        ['Item Details', 'Store', 'Retail', 'Coupon', 'Rewards', 'Expiry', 'Status'],
+      ];
+
+      exportDeals.forEach((deal) => {
+        const computedStatus = getDealStatus(deal, Date.now());
+
+        rows.push([
+          deal.productName || '—',
+          deal.storeName || deal.store || '—',
+          Number(deal.retailPrice || 0).toFixed(2),
+          Number(deal.couponAmount || 0).toFixed(2),
+          deal.rewardName
+            ? `${deal.rewardName} ($${Number(deal.rewardAmount || 0).toFixed(2)})`
+            : deal.rewardAmount
+              ? `$${Number(deal.rewardAmount || 0).toFixed(2)}`
+              : '—',
+          dayjs(deal.endDate).format('DD-MM-YYYY'),
+          computedStatus,
+        ]);
+      });
+
+      downloadCsv(`deals-export-${dayjs().format('YYYY-MM-DD_HH-mm')}.csv`, rows);
+      toast.success(`Deals exported as CSV (${exportDeals.length} rows)`);
+    } catch (error) {
+      toast.error(error?.message || 'Failed to export deals as CSV');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col w-full font-inter">
       {/* Edit Modal */}
@@ -233,8 +296,14 @@ const DealsInventoryTable = ({ searchQuery }) => {
         <h1 className="text-[24px] font-semibold text-[#0A0A0A]">Weekly Deals Inventory</h1>
         
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <button className="w-10 h-10 flex items-center justify-center rounded-lg border border-[#EBEBEB] text-[#6A7282] bg-white hover:bg-gray-50 transition-colors shrink-0">
-            <Upload size={18} strokeWidth={1.5} />
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={isExporting || isLoading}
+            title="Export CSV"
+            className="w-10 h-10 flex items-center justify-center rounded-lg border border-[#EBEBEB] text-[#6A7282] bg-white hover:bg-gray-50 transition-colors shrink-0 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Download size={18} strokeWidth={1.5} />
           </button>
           <button 
             onClick={() => setIsFilterOpen(true)}

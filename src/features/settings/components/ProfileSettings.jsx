@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import ChangePasswordModal from './ChangePasswordModal';
 import { useGetProfile, useUpdateProfile } from '../hooks/useProfile';
-import { Loader2 } from 'lucide-react';
+import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader';
 
 const profileSchema = z.object({
   displayName: z.string().min(1, 'Full Name is required'),
@@ -70,8 +70,8 @@ const ProfileSettings = () => {
 
   if (isFetching) {
     return (
-      <div className="bg-white border border-[#EBEBEB] rounded-xl p-8 flex items-center justify-center min-h-[300px]">
-        <Loader2 className="w-8 h-8 text-[#005EF8] animate-spin" />
+      <div className="bg-white border border-[#EBEBEB] rounded-xl overflow-hidden">
+        <UniversalLoader />
       </div>
     );
   }

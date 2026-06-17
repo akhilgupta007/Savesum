@@ -69,13 +69,7 @@ const CreateDealPage = () => {
 
     Object.keys(mapping).forEach(formKey => {
       if (formData[formKey]) {
-        if (formKey === 'couponType') {
-          // Map to backend expected values
-          const typeValue = formData.couponType.includes('%') ? 'percentage' : 'flat';
-          data.append('couponType', typeValue);
-        } else {
-          data.append(mapping[formKey], formData[formKey]);
-        }
+        data.append(mapping[formKey], formData[formKey]);
       }
     });
 

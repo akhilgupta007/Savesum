@@ -1,10 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Calendar, Plus } from 'lucide-react';
 import { useUpdateDeal } from '../hooks/useUpdateDeal';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import StoreSelect from './StoreSelect';
 import RewardTypeSelect from './RewardTypeSelect';
+import CouponTypeSelect from './CouponTypeSelect';
 import dayjs from 'dayjs';
+import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader';
+import { fetchDealById } from '../services/deals.service';
+
+const formatCouponTypeForForm = (couponType) => {
+  if (couponType === 'percentage' || couponType === 'flat') return 'Custom';
+  return couponType || 'Custom';
+};
 
 const EditDealModal = ({ isOpen, onClose, deal }) => {
   const queryClient = useQueryClient();
@@ -14,24 +22,38 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
 
+  const dealId = deal?._id || deal?.id;
+
+  const {
+    data: dealDetailsResponse,
+    isLoading: isLoadingDealDetails,
+  } = useQuery({
+    queryKey: ['deal', dealId],
+    queryFn: () => fetchDealById(dealId),
+    enabled: isOpen && !!dealId,
+    staleTime: 0,
+  });
+
+  const dealDetails = dealDetailsResponse?.data || dealDetailsResponse || deal;
+
   useEffect(() => {
-    if (deal && isOpen) {
+    if (dealDetails && isOpen) {
       setFormData({
-        productName: deal.productName || '',
-        upcCode: deal.upcCode || '',
-        store: deal.store?.name || deal.store || '',
-        retailPrice: deal.retailPrice || '',
-        couponAmount: deal.couponAmount || '',
-        couponType: deal.couponType || 'Digital',
-        rewardName: deal.rewardName || '',
-        rewardAmount: deal.rewardAmount || '',
-        startDate: deal.startDate ? dayjs(deal.startDate).format('YYYY-MM-DD') : '',
-        endDate: deal.endDate ? dayjs(deal.endDate).format('YYYY-MM-DD') : '',
+        productName: dealDetails.productName || '',
+        upcCode: dealDetails.upcCode || '',
+        store: dealDetails.store?.name || dealDetails.storeName || dealDetails.store || '',
+        retailPrice: dealDetails.retailPrice || '',
+        couponAmount: dealDetails.couponAmount || '',
+        couponType: formatCouponTypeForForm(dealDetails.couponType),
+        rewardName: dealDetails.rewardName || '',
+        rewardAmount: dealDetails.rewardAmount || '',
+        startDate: dealDetails.startDate ? dayjs(dealDetails.startDate).format('YYYY-MM-DD') : '',
+        endDate: dealDetails.endDate ? dayjs(dealDetails.endDate).format('YYYY-MM-DD') : '',
       });
-      setImagePreview(deal.productImageUrl || null);
+      setImagePreview(dealDetails.productImageUrl || null);
       setImageFile(null);
     }
-  }, [deal, isOpen]);
+  }, [dealDetails, isOpen]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -56,13 +78,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
       if (key === 'store') return; // Handled separately below
 
       if (formData[key] !== '' && formData[key] !== null) {
-        if (key === 'couponType') {
-          // Edit deal modal has 'Digital' or 'Paper'. We map anything with % to percentage, else flat
-          const typeValue = formData.couponType.includes('%') ? 'percentage' : 'flat';
-          data.append('couponType', typeValue);
-        } else {
-          data.append(key, formData[key]);
-        }
+        data.append(key, formData[key]);
       }
     });
 
@@ -93,6 +109,17 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
   };
 
   if (!isOpen) return null;
+
+  if (isLoadingDealDetails && !dealDetails) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center font-inter">
+        <div className="absolute inset-0 bg-[#0A0A0A] bg-opacity-40" onClick={onClose} />
+        <div className="relative bg-white rounded-xl shadow-xl w-full max-w-[700px] mx-4 overflow-hidden flex flex-col">
+          <UniversalLoader />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center font-inter">
@@ -188,18 +215,10 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
                 />
               </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-[13px] font-semibold text-[#0A0A0A]">Coupon Type</label>
-              <select 
-                name="couponType"
-                value={formData.couponType}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] bg-white focus:outline-none focus:border-[#005EF8]"
-              >
-                <option value="Digital">Digital</option>
-                <option value="Paper">Paper</option>
-              </select>
-            </div>
+            <CouponTypeSelect
+              value={formData.couponType || ''}
+              onChange={(option) => setFormData(prev => ({ ...prev, couponType: option }))}
+            />
           </div>
 
           {/* Row 4 */}

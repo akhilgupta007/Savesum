@@ -21,6 +21,16 @@ export const fetchDeals = async ({ search, filters, sort, pagination }) => {
 };
 
 /**
+ * Fetches a single deal by id
+ * @param {string} id - The Deal ID
+ * @returns {Promise<Object>} The API response containing the deal details
+ */
+export const fetchDealById = async (id) => {
+  const response = await api.get(`/deals/${id}`);
+  return response.data;
+};
+
+/**
  * Updates an existing deal (multipart/form-data)
  * @param {string} id - The Deal ID
  * @param {FormData} formData - The formData containing updated fields

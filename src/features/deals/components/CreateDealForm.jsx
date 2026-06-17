@@ -2,32 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Upload, ImagePlus, X, Camera } from 'lucide-react';
 import StoreSelect from './StoreSelect';
 import RewardTypeSelect from './RewardTypeSelect';
-
-const percentageOptions = ['10 %', '20 %', '30 %', '40 %', '50 %', '60 %', '70 %', '80 %', '90 %', 'Free', 'Custom'];
+import CouponTypeSelect from './CouponTypeSelect';
 
 const CreateDealForm = ({ formData, setFormData }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleCouponTypeSelect = (option) => {
-    setFormData(prev => ({ ...prev, couponType: option }));
-    setIsDropdownOpen(false);
   };
 
   const processImageFile = (file) => {
@@ -253,37 +235,10 @@ const CreateDealForm = ({ formData, setFormData }) => {
             </div>
           </div>
 
-          {/* Custom Dropdown for Coupon Type */}
-          <div className="flex flex-col gap-2" ref={dropdownRef}>
-            <label className="text-[13px] font-semibold text-[#0A0A0A]">Coupon Type</label>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] bg-white flex items-center justify-between focus:outline-none focus:border-[#005EF8]"
-              >
-                <span className={formData.couponType ? 'text-[#0A0A0A]' : 'text-[#6A7282]'}>
-                  {formData.couponType || 'Select'}
-                </span>
-                <ChevronDown size={16} className="text-[#6A7282]" />
-              </button>
-
-              {isDropdownOpen && (
-                <div className="absolute top-full mt-2 w-full bg-white border border-[#EBEBEB] rounded-xl shadow-lg z-50 py-2 max-h-[250px] overflow-y-auto">
-                  {percentageOptions.map((opt, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => handleCouponTypeSelect(opt)}
-                      className={`px-4 py-2.5 text-[14px] text-[#0A0A0A] cursor-pointer hover:bg-[#F5F5F5] transition-colors border-b border-[#F5F5F5] last:border-0 ${formData.couponType === opt ? 'bg-[#F0F5FF] border-l-2 border-l-[#005EF8] text-[#005EF8]' : ''
-                        }`}
-                    >
-                      {opt}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          <CouponTypeSelect
+            value={formData.couponType || ''}
+            onChange={(option) => setFormData(prev => ({ ...prev, couponType: option }))}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-6">

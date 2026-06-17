@@ -1,6 +1,17 @@
 import React from 'react';
+import { useDeleteHelpQuestion } from '../hooks/useHelpQuestions';
 
-const DeleteQuestionModal = ({ isOpen, onClose }) => {
+const DeleteQuestionModal = ({ isOpen, onClose, question }) => {
+  const { mutate: deleteQuestion, isPending } = useDeleteHelpQuestion();
+
+  const handleDelete = () => {
+    if (!question?._id) return;
+
+    deleteQuestion(question._id, {
+      onSuccess: onClose,
+    });
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -21,9 +32,11 @@ const DeleteQuestionModal = ({ isOpen, onClose }) => {
             Cancel
           </button>
           <button 
-            className="flex-1 py-[12px] bg-[#B00020] rounded-xl text-[15px] font-semibold text-white hover:bg-[#90001A] transition-colors"
+            onClick={handleDelete}
+            disabled={isPending}
+            className="flex-1 py-[12px] bg-[#B00020] rounded-xl text-[15px] font-semibold text-white hover:bg-[#90001A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Delete
+            {isPending ? 'Deleting...' : 'Delete'}
           </button>
         </div>
       </div>
