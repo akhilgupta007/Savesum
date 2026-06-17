@@ -3,7 +3,6 @@ import DashboardLayout from '@/components/Layout/DashboardLayout';
 import AnalyticsHeader from '../components/AnalyticsHeader';
 import StatCard from '../components/StatCard';
 import MostUsedDeals from '../components/MostUsedDeals';
-import PopularItems from '../components/PopularItems';
 import { useAnalyticsStats } from '../hooks/useAnalyticsStats';
 
 const AnalyticsPage = () => {
@@ -52,9 +51,8 @@ const AnalyticsPage = () => {
       </div>
 
       {/* Bottom Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+      <div className="w-full">
         <MostUsedDeals deals={stats.mostUsedDeals || []} />
-        <PopularItems />
       </div>
     </div>
   );

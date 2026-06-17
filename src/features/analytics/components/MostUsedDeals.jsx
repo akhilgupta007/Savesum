@@ -2,38 +2,48 @@ import React from 'react';
 
 const MostUsedDeals = ({ deals = [] }) => {
   return (
-    <div className="bg-white border border-[#EBEBEB] rounded-2xl p-6 font-inter h-[400px] flex flex-col">
-      <h2 className="text-[15px] font-bold text-[#0A0A0A] mb-4">Most Used Deals</h2>
-      {deals.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-[14px] text-[#8C8C8C]">No data available</p>
-        </div>
-      ) : (
-        <div className="flex flex-col overflow-y-auto pr-2 custom-scrollbar">
-          {deals.map((deal, index) => (
-            <div 
-              key={deal.dealId || deal._id || index} 
-              className={`flex items-center justify-between py-4 ${index !== deals.length - 1 ? 'border-b border-[#EBEBEB]' : ''}`}
-            >
-              <div className="flex items-center gap-4">
-                <img 
-                  src={deal.productImageUrl || 'https://via.placeholder.com/100'} 
-                  alt={deal.productName || 'Product'} 
-                  className="w-11 h-11 rounded-lg object-cover bg-gray-100" 
-                />
-                <div>
-                  <h4 className="text-[14px] font-semibold text-[#0A0A0A] leading-tight line-clamp-1">{deal.productName}</h4>
-                  <p className="text-[12px] text-[#8C8C8C] mt-1 font-medium">{deal.storeName}</p>
-                </div>
-              </div>
-              <div className="text-[15px] font-bold text-[#10B981] flex flex-col items-end">
-                <span>${deal.couponAmount}</span>
-                <span className="text-[11px] text-[#8C8C8C] font-normal">Used: {deal.useCount}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="bg-white rounded-xl border border-[#EBEBEB] shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col w-full font-inter overflow-hidden">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 md:p-6 border-b border-[#EBEBEB] gap-4 md:gap-0">
+        <h2 className="text-[20px] font-semibold text-[#0A0A0A]">Most Used Deals</h2>
+      </div>
+
+      {/* Table Body */}
+      <div className="overflow-x-auto w-full min-h-[300px]">
+        {deals.length === 0 ? (
+          <div className="flex items-center justify-center h-[300px] text-[#6A7282]">No data available</div>
+        ) : (
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-[#EBEBEB]">
+                <th className="py-4 px-6 text-sm text-[#6A7282] font-normal">Item Details</th>
+                <th className="py-4 px-6 text-sm text-[#6A7282] font-normal">Store</th>
+                <th className="py-4 px-6 text-sm text-[#6A7282] font-normal">Coupon Amount</th>
+                <th className="py-4 px-6 text-sm text-[#6A7282] font-normal">Use Count</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#EBEBEB]">
+              {deals.map((deal, index) => (
+                <tr key={deal.dealId || deal._id || index} className="hover:bg-[#F9FAFB] transition-colors">
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={deal.productImageUrl || 'https://via.placeholder.com/80'}
+                        alt={deal.productName || 'Product'}
+                        className="w-10 h-10 rounded bg-[#EBEBEB] object-cover"
+                      />
+                      <span className="text-[14px] font-medium text-[#0A0A0A]">{deal.productName}</span>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6 text-[14px] text-[#0A0A0A] font-medium">{deal.storeName || '—'}</td>
+                  <td className="py-4 px-6 text-[14px] font-medium text-[#00A152]">${Number(deal.couponAmount || 0).toFixed(2)}</td>
+                  <td className="py-4 px-6 text-[14px] text-[#0A0A0A]">{deal.useCount || 0}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 };

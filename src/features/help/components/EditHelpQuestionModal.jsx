@@ -1,8 +1,63 @@
-import React from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Plus, Trash2 } from 'lucide-react';
+import { useUpdateHelpQuestion } from '../hooks/useHelpQuestions';
 
-const EditHelpQuestionModal = ({ isOpen, onClose }) => {
+const EditHelpQuestionModal = ({ isOpen, onClose, question }) => {
+  const [title, setTitle] = useState('');
+  const [answers, setAnswers] = useState([{ head: '', body: '' }]);
+  const [savingStatus, setSavingStatus] = useState(null);
+  
+  const { mutate: updateQuestion, isPending } = useUpdateHelpQuestion();
+
+  useEffect(() => {
+    if (question && isOpen) {
+      setTitle(question.title || '');
+      if (Array.isArray(question.answer) && question.answer.length > 0) {
+        setAnswers(question.answer.map(a => ({ head: a.head || '', body: a.body || '' })));
+      } else {
+        setAnswers([{ head: '', body: '' }]);
+      }
+    }
+  }, [question, isOpen]);
+
   if (!isOpen) return null;
+
+  const handleUpdateAnswer = (index, field, value) => {
+    const newAnswers = [...answers];
+    newAnswers[index][field] = value;
+    setAnswers(newAnswers);
+  };
+
+  const handleAddStep = () => {
+    setAnswers([...answers, { head: '', body: '' }]);
+  };
+
+  const handleRemoveStep = (index) => {
+    if (answers.length > 1) {
+      setAnswers(answers.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleSave = (status) => {
+    if (!title.trim() || answers.some(a => !a.head.trim() || !a.body.trim())) {
+      alert('Please fill out all fields.');
+      return;
+    }
+    
+    setSavingStatus(status);
+    updateQuestion(
+      { helpId: question._id, title, answer: answers, status },
+      { 
+        onSuccess: () => {
+          setSavingStatus(null);
+          onClose();
+        },
+        onError: () => {
+          setSavingStatus(null);
+        }
+      }
+    );
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -16,57 +71,58 @@ const EditHelpQuestionModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Body */}
-        <div className="p-6 flex flex-col gap-6">
+        <div className="p-6 flex flex-col gap-6 max-h-[60vh] overflow-y-auto">
           <div className="flex flex-col gap-2">
             <label className="text-[15px] font-medium text-[#0A0A0A]">Question Title</label>
             <input 
               type="text" 
-              defaultValue="How do I add a trip?"
-              className="w-full px-4 py-3 border border-[#EBEBEB] rounded-xl text-[14px] text-[#0A0A0A] focus:outline-none focus:border-[#005EF8] transition-colors"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter question title"
+              className="w-full px-4 py-3 border border-[#EBEBEB] rounded-xl text-[14px] text-[#0A0A0A] placeholder-[#8C8C8C] focus:outline-none focus:border-[#005EF8] transition-colors"
             />
           </div>
           
-          <div className="flex flex-col gap-2">
-            <label className="text-[15px] font-medium text-[#0A0A0A]">Answer Content</label>
-            <div className="w-full h-[280px] border border-[#EBEBEB] rounded-xl overflow-hidden relative">
-              <div className="p-6 flex flex-col gap-8 h-full overflow-y-auto pr-10">
-                
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-[#005EF8] flex items-center justify-center text-white text-[14px] font-medium shrink-0">1</div>
-                  <div className="flex flex-col mt-1">
-                    <h4 className="text-[15px] text-[#0A0A0A] font-medium">Open Dashboard</h4>
-                    <p className="text-[13px] text-[#8C8C8C] mt-0.5">Go to the Dashboard screen after logging in.</p>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <label className="text-[15px] font-medium text-[#0A0A0A]">Answer Content</label>
+              <button onClick={handleAddStep} className="flex items-center gap-1 text-[13px] font-medium text-[#005EF8] hover:text-blue-700 transition-colors">
+                <Plus size={14} /> Add Step
+              </button>
+            </div>
+            
+            <div className="w-full border border-[#EBEBEB] rounded-xl overflow-hidden bg-gray-50/30">
+              <div className="p-6 flex flex-col gap-6">
+                {answers.map((ans, idx) => (
+                  <div key={idx} className="flex gap-4 items-start relative group">
+                    <div className="w-8 h-8 rounded-full bg-[#005EF8] flex items-center justify-center text-white text-[14px] font-medium shrink-0 mt-1">
+                      {idx + 1}
+                    </div>
+                    <div className="flex flex-col gap-3 w-full pr-8">
+                      <input 
+                        type="text" 
+                        value={ans.head}
+                        onChange={(e) => handleUpdateAnswer(idx, 'head', e.target.value)}
+                        placeholder="Enter step title"
+                        className="w-full px-3 py-2 border border-[#EBEBEB] rounded-lg text-[14px] font-medium text-[#0A0A0A] placeholder-[#8C8C8C] focus:outline-none focus:border-[#005EF8] transition-colors"
+                      />
+                      <textarea 
+                        value={ans.body}
+                        onChange={(e) => handleUpdateAnswer(idx, 'body', e.target.value)}
+                        placeholder="Enter step description..."
+                        className="w-full px-3 py-2 border border-[#EBEBEB] rounded-lg text-[13px] text-[#0A0A0A] placeholder-[#8C8C8C] focus:outline-none focus:border-[#005EF8] transition-colors resize-none h-[60px]"
+                      ></textarea>
+                    </div>
+                    {answers.length > 1 && (
+                      <button 
+                        onClick={() => handleRemoveStep(idx)}
+                        className="absolute right-0 top-2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-[#005EF8] flex items-center justify-center text-white text-[14px] font-medium shrink-0">2</div>
-                  <div className="flex flex-col mt-1">
-                    <h4 className="text-[15px] text-[#0A0A0A] font-medium">Tap "Create New Trip"</h4>
-                    <p className="text-[13px] text-[#8C8C8C] mt-0.5">Select the Create New Trip button.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-[#005EF8] flex items-center justify-center text-white text-[14px] font-medium shrink-0">3</div>
-                  <div className="flex flex-col mt-1">
-                    <h4 className="text-[15px] text-[#0A0A0A] font-medium">Enter Trip Details</h4>
-                    <p className="text-[13px] text-[#8C8C8C] mt-0.5 leading-snug">Add a trip name such as Weekly CVS Trip or<br/>Walgreens Deals.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-[#005EF8] flex items-center justify-center text-white text-[14px] font-medium shrink-0">4</div>
-                  <div className="flex flex-col mt-1">
-                    <h4 className="text-[15px] text-[#0A0A0A] font-medium">Create the Trip</h4>
-                    <p className="text-[13px] text-[#8C8C8C] mt-0.5">Tap Save or Create Trip.</p>
-                  </div>
-                </div>
-
-              </div>
-              
-              <div className="absolute right-2 top-4 bottom-4 w-1.5 bg-[#F5F5F5] rounded-full">
-                <div className="w-full h-[60%] bg-[#8C8C8C] rounded-full"></div>
+                ))}
               </div>
             </div>
           </div>
@@ -81,9 +137,18 @@ const EditHelpQuestionModal = ({ isOpen, onClose }) => {
             Cancel
           </button>
           <button 
-            className="px-6 py-[10px] bg-[#005EF8] rounded-xl text-[14px] font-medium text-white hover:bg-[#005EF8]/90 transition-colors"
+            onClick={() => handleSave('draft')}
+            disabled={isPending}
+            className="px-6 py-[10px] border border-[#EBEBEB] rounded-xl text-[14px] font-medium text-[#005EF8] hover:bg-blue-50 transition-colors disabled:opacity-50 min-w-[130px]"
           >
-            Save Changes
+            {isPending && savingStatus === 'draft' ? 'Saving...' : 'Save as Draft'}
+          </button>
+          <button 
+            onClick={() => handleSave('published')}
+            disabled={isPending}
+            className="px-6 py-[10px] bg-[#005EF8] rounded-xl text-[14px] font-medium text-white hover:bg-[#005EF8]/90 transition-colors disabled:opacity-50 min-w-[150px]"
+          >
+            {isPending && savingStatus === 'published' ? 'Saving...' : 'Publish Changes'}
           </button>
         </div>
       </div>
