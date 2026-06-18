@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 const TopHeader = ({ leftContent, onMenuClick }) => {
   return (
@@ -15,10 +15,6 @@ const TopHeader = ({ leftContent, onMenuClick }) => {
       </div>
       
       <div className="flex items-center gap-6">
-        <button className="w-10 h-10 flex items-center justify-center rounded-full border border-[#EBEBEB] text-[#0A0A0A] hover:bg-gray-50 transition-colors">
-          <Bell size={20} />
-        </button>
-        
         <div className="flex items-center gap-3">
           <img 
             src="https://randomuser.me/api/portraits/women/44.jpg" 

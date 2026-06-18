@@ -25,7 +25,7 @@ const SuccessModal = ({ isOpen, onClose, type }) => {
     ? {
         title: 'Draft Saved',
         subtitle: 'Your deal has been saved as a draft.',
-        detail: 'You can access and publish it anytime from the deals dashboard.',
+        detail: 'You can access and publish it anytime from the Deals Page.',
         gradient: 'from-[#005EF8] to-[#3B82F6]',
         ringColor: 'ring-blue-100',
         bgAccent: 'bg-blue-50',
@@ -35,7 +35,7 @@ const SuccessModal = ({ isOpen, onClose, type }) => {
     : {
         title: 'Deal Published!',
         subtitle: 'Your deal is now live for users to see.',
-        detail: 'Track performance and manage it anytime from the deals dashboard.',
+        detail: 'Track performance and manage it anytime from the Deals Page.',
         gradient: 'from-[#16A34A] to-[#22C55E]',
         ringColor: 'ring-green-100',
         bgAccent: 'bg-green-50',
@@ -105,7 +105,7 @@ const SuccessModal = ({ isOpen, onClose, type }) => {
             onClick={onClose}
             className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[14px] font-bold text-white bg-gradient-to-r ${config.gradient} hover:opacity-90 transition-opacity shadow-md`}
           >
-            View in Dashboard
+            View in Deals Page
             <ArrowRight size={16} strokeWidth={2.5} />
           </button>
         </div>

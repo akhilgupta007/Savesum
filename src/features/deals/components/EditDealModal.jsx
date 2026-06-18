@@ -83,13 +83,19 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
     });
 
     if (formData.store) {
-      data.append('storeName', formData.store);
-      // Match store name to id via cache
-      const storesCache = queryClient.getQueryData(['stores']);
-      const cacheList = storesCache?.data || [];
-      const foundStore = cacheList.find(s => s.name.toLowerCase() === formData.store.toLowerCase());
-      if (foundStore) {
-        data.append('storeId', foundStore._id);
+      const actualStoreName = formData.store === 'Others' ? formData.customStoreName : formData.store;
+      if (actualStoreName) {
+        data.append('storeName', actualStoreName);
+      }
+      
+      if (formData.store !== 'Others') {
+        // Match store name to id via cache
+        const storesCache = queryClient.getQueryData(['stores']);
+        const cacheList = storesCache?.data || [];
+        const foundStore = cacheList.find(s => s.name.toLowerCase() === formData.store.toLowerCase());
+        if (foundStore) {
+          data.append('storeId', foundStore._id);
+        }
       }
     }
     
@@ -176,9 +182,11 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-[13px] font-semibold text-[#0A0A0A]">Store</label>
-              <StoreSelect
+              <input
+                type="text"
                 value={formData.store || ''}
-                onChange={(storeName) => setFormData(prev => ({ ...prev, store: storeName }))}
+                disabled
+                className="w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#6A7282] bg-[#F9FAFB] cursor-not-allowed focus:outline-none"
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -223,13 +231,6 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
 
           {/* Row 4 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex flex-col gap-2">
-              <label className="text-[13px] font-semibold text-[#0A0A0A]">Reward Name</label>
-              <RewardTypeSelect
-                value={formData.rewardName || ''}
-                onChange={(val) => setFormData(prev => ({ ...prev, rewardName: val }))}
-              />
-            </div>
             <div className="flex flex-col gap-2">
               <label className="text-[13px] font-semibold text-[#0A0A0A]">Reward Amount</label>
               <div className="relative">

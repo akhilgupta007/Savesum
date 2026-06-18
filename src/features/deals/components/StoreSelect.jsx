@@ -132,6 +132,25 @@ const StoreSelect = ({ value, onChange, placeholder = 'Select or type a store' }
               </div>
             )}
 
+            {/* Others Option */}
+            <button
+              type="button"
+              onMouseDown={(e) => { e.preventDefault(); handleSelect('Others'); }}
+              className={`w-full flex items-center gap-3 px-4 py-2.5 text-[14px] text-left transition-colors group
+                ${value === 'Others'
+                  ? 'bg-[#E8F0FE] text-[#005EF8] font-medium'
+                  : 'text-[#0A0A0A] hover:bg-[#F5F7FF]'
+                }`}
+            >
+              <Store size={14} className={`shrink-0 ${value === 'Others' ? 'text-[#005EF8]' : 'text-[#6A7282] group-hover:text-[#005EF8]'}`} />
+              Others
+              {value === 'Others' && (
+                <span className="ml-auto text-[11px] font-semibold text-[#005EF8] bg-[#D1E0FD] px-2 py-0.5 rounded-full">
+                  Selected
+                </span>
+              )}
+            </button>
+
             {filtered.map((store) => (
               <button
                 key={store._id}

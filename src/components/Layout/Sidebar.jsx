@@ -36,7 +36,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         />
       )}
       
-      <aside className={`w-[280px] h-screen bg-white border-r border-[#EBEBEB] flex flex-col justify-between py-8 fixed inset-y-0 left-0 z-[60] md:z-40 transform transition-transform duration-300 md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`w-[230px] h-screen bg-white border-r border-[#EBEBEB] flex flex-col justify-between py-8 fixed inset-y-0 left-0 z-[60] md:z-40 transform transition-transform duration-300 md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       <div>
         <div className="px-8 mb-10 flex items-center gap-3">
           <img src={logo1} alt="Save Sum Logo 1" className="h-[48px] w-auto object-contain" />

@@ -175,6 +175,16 @@ const CreateDealForm = ({ formData, setFormData }) => {
             value={formData.store || ''}
             onChange={(storeName) => setFormData(prev => ({ ...prev, store: storeName }))}
           />
+          {formData.store === 'Others' && (
+            <input
+              type="text"
+              name="customStoreName"
+              placeholder="Enter store name"
+              value={formData.customStoreName || ''}
+              onChange={handleInputChange}
+              className="mt-2 w-full px-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
+            />
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-6">
@@ -188,22 +198,6 @@ const CreateDealForm = ({ formData, setFormData }) => {
                 min="0"
                 name="retail"
                 value={formData.retail || ''}
-                onChange={handleInputChange}
-                placeholder="0.00"
-                className="w-full pl-8 pr-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-[13px] font-semibold text-[#0A0A0A]">Sale Price (Optional)</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#6A7282]">$</div>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                name="salePrice"
-                value={formData.salePrice || ''}
                 onChange={handleInputChange}
                 placeholder="0.00"
                 className="w-full pl-8 pr-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
@@ -243,13 +237,6 @@ const CreateDealForm = ({ formData, setFormData }) => {
 
         <div className="grid grid-cols-2 gap-6">
           <div className="flex flex-col gap-2">
-            <label className="text-[13px] font-semibold text-[#0A0A0A]">Reward Name</label>
-            <RewardTypeSelect
-              value={formData.rewardName || ''}
-              onChange={(val) => setFormData(prev => ({ ...prev, rewardName: val }))}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
             <label className="text-[13px] font-semibold text-[#0A0A0A]">Reward Amount</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#6A7282]">$</div>
@@ -280,6 +267,7 @@ const CreateDealForm = ({ formData, setFormData }) => {
                 type="date"
                 name="startDate"
                 value={formData.startDate || ''}
+                min={new Date().toISOString().split('T')[0]}
                 onChange={handleInputChange}
                 className="w-full pl-4 pr-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8] bg-white"
               />
@@ -292,6 +280,7 @@ const CreateDealForm = ({ formData, setFormData }) => {
                 type="date"
                 name="endDate"
                 value={formData.endDate || ''}
+                min={formData.startDate || new Date().toISOString().split('T')[0]}
                 onChange={handleInputChange}
                 className="w-full pl-4 pr-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8] bg-white"
               />

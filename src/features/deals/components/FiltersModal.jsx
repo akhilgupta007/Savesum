@@ -17,14 +17,7 @@ const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
 
   const [stores, setStores] = useState(currentFilters?.stores || {});
 
-  const [rewardTypes, setRewardTypes] = useState(currentFilters?.rewardTypes || {
-    'ExtraBucks (ECB)': false,
-    'Promo credit': false,
-    'Cash rewards': false,
-    'Store credit': false,
-    'Coupon reward': false,
-    'Loyalty points': false
-  });
+  // Reward types removed
 
   const [sortBy, setSortBy] = useState(currentFilters?.sortBy || '');
   const [startDate, setStartDate] = useState(currentFilters?.startDate || '');
@@ -33,7 +26,6 @@ const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
   useEffect(() => {
     if (isOpen && currentFilters) {
       if (currentFilters.stores) setStores(currentFilters.stores);
-      if (currentFilters.rewardTypes) setRewardTypes(currentFilters.rewardTypes);
       if (currentFilters.sortBy) setSortBy(currentFilters.sortBy);
       if (currentFilters.startDate) setStartDate(currentFilters.startDate);
       if (currentFilters.endDate) setEndDate(currentFilters.endDate);
@@ -46,21 +38,17 @@ const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
     setStores(prev => ({ ...prev, [storeId]: isChecked }));
   };
 
-  const handleRewardTypeChange = (rewardName, isChecked) => {
-    setRewardTypes(prev => ({ ...prev, [rewardName]: isChecked }));
-  };
+  // handleRewardTypeChange removed
 
   const selectedStoreIds = Object.entries(stores).filter(([_, checked]) => checked).map(([id]) => id);
   const selectedStoreNames = selectedStoreIds.map(id => storesList.find(s => s._id === id)?.name || id);
-  const selectedRewards = Object.entries(rewardTypes).filter(([_, checked]) => checked).map(([name]) => name);
 
-  const hasActiveFilters = selectedStoreIds.length > 0 || selectedRewards.length > 0 || !!startDate || !!endDate || !!sortBy;
-  const activeFilterCount = selectedStoreIds.length + selectedRewards.length + (startDate ? 1 : 0) + (endDate ? 1 : 0) + (sortBy ? 1 : 0);
+  const hasActiveFilters = selectedStoreIds.length > 0 || !!startDate || !!endDate || !!sortBy;
+  const activeFilterCount = selectedStoreIds.length + (startDate ? 1 : 0) + (endDate ? 1 : 0) + (sortBy ? 1 : 0);
 
   // Clears ALL local state, tells parent to reset to null (no filters), closes modal
   const clearAll = () => {
     setStores({});
-    setRewardTypes(Object.keys(rewardTypes).reduce((acc, curr) => ({ ...acc, [curr]: false }), {}));
     setSortBy('');
     setStartDate('');
     setEndDate('');
@@ -70,7 +58,7 @@ const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
 
   const handleApply = () => {
     if (onApply) {
-      onApply(hasActiveFilters ? { stores, rewardTypes, sortBy, startDate, endDate } : null);
+      onApply(hasActiveFilters ? { stores, sortBy, startDate, endDate } : null);
     }
     onClose();
   };
@@ -100,12 +88,6 @@ const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
                   <X size={14} className="cursor-pointer" onClick={() => setStores({})} />
                 </div>
               )}
-              {selectedRewards.length > 0 && (
-                <div className="flex items-center gap-2 bg-[#005EF8] text-white px-4 py-1.5 rounded-full text-[13px] font-medium">
-                  Reward Type: {selectedRewards.join(', ')}
-                  <X size={14} className="cursor-pointer" onClick={() => setRewardTypes(prev => Object.keys(prev).reduce((acc, curr) => ({...acc, [curr]: false}), {}))} />
-                </div>
-              )}
             </div>
           </div>
 
@@ -125,8 +107,8 @@ const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
             </div>
           </div>
 
-          {/* Grid: Stores & Reward Type */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Grid: Stores */}
+          <div className="grid grid-cols-1 gap-6">
             
             {/* Stores */}
             <div className="border border-[#EBEBEB] rounded-xl p-6">
@@ -146,21 +128,6 @@ const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
                     <ChevronDown size={16} />
                   </div>
                 )}
-              </div>
-            </div>
-
-            {/* Reward Type */}
-            <div className="border border-[#EBEBEB] rounded-xl p-6">
-              <h3 className="text-[12px] font-bold text-[#0A0A0A] uppercase tracking-wider mb-4">Reward Type</h3>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-1">
-                {Object.entries(rewardTypes).map(([rewardName, isChecked]) => (
-                  <Checkbox 
-                    key={rewardName} 
-                    label={rewardName} 
-                    checked={isChecked} 
-                    onChange={(checked) => handleRewardTypeChange(rewardName, checked)} 
-                  />
-                ))}
               </div>
             </div>
 

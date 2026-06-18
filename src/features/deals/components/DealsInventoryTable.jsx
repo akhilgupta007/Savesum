@@ -4,6 +4,7 @@ import { Trash2, Download, Filter, Plus, ArchiveRestore } from 'lucide-react';
 import { ROUTES } from '@/constants/routes.constants';
 import dayjs from 'dayjs';
 import EditDealModal from './EditDealModal';
+import ViewDealModal from './ViewDealModal';
 import ConfirmationModal from './ConfirmationModal';
 import FiltersModal from './FiltersModal';
 import { useDeals } from '../hooks/useDeals';
@@ -13,6 +14,7 @@ import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader
 import { fetchDeals } from '../services/deals.service';
 import toast from 'react-hot-toast';
 import { downloadCsv } from '@/utils/exportCsv';
+import { formatPrice } from '@/utils/formatPrice';
 
 const EditIconCustom = () => (
   <svg width="20" height="20" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -95,6 +97,7 @@ const getSort = (sortBy) => {
 const DealsInventoryTable = ({ searchQuery }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('All');
+  const [viewingDeal, setViewingDeal] = useState(null);
   const [editingDeal, setEditingDeal] = useState(null);
   const [archivingDeal, setArchivingDeal] = useState(null);
   const [unarchivingDeal, setUnarchivingDeal] = useState(null);
@@ -108,13 +111,11 @@ const DealsInventoryTable = ({ searchQuery }) => {
   const [modalFilters, setModalFilters] = useState(null);
 
   const activeStores = modalFilters ? Object.entries(modalFilters.stores).filter(([_, v]) => v).map(([k]) => k) : [];
-  const activeRewards = modalFilters ? Object.entries(modalFilters.rewardTypes).filter(([_, v]) => v).map(([k]) => k) : [];
 
   const apiFilters = {
     status: mapTabToStatus(activeTab),
     ...(modalFilters && {
       ...(activeStores.length > 0 && { stores: activeStores }),
-      ...(activeRewards.length > 0 && { rewardTypes: activeRewards }),
       dateRange: (modalFilters.startDate || modalFilters.endDate) ? {
         startDate: modalFilters.startDate || undefined,
         endDate: modalFilters.endDate || undefined,
@@ -215,12 +216,12 @@ const DealsInventoryTable = ({ searchQuery }) => {
         rows.push([
           deal.productName || '—',
           deal.storeName || deal.store || '—',
-          Number(deal.retailPrice || 0).toFixed(2),
-          Number(deal.couponAmount || 0).toFixed(2),
+          formatPrice(deal.retailPrice || 0),
+          formatPrice(deal.couponAmount || 0),
           deal.rewardName
-            ? `${deal.rewardName} ($${Number(deal.rewardAmount || 0).toFixed(2)})`
+            ? `${deal.rewardName} ($${formatPrice(deal.rewardAmount || 0)})`
             : deal.rewardAmount
-              ? `$${Number(deal.rewardAmount || 0).toFixed(2)}`
+              ? `$${formatPrice(deal.rewardAmount || 0)}`
               : '—',
           dayjs(deal.endDate).format('DD-MM-YYYY'),
           computedStatus,
@@ -238,6 +239,13 @@ const DealsInventoryTable = ({ searchQuery }) => {
 
   return (
     <div className="flex flex-col w-full font-inter">
+      {/* View Modal */}
+      <ViewDealModal 
+        isOpen={!!viewingDeal} 
+        onClose={() => setViewingDeal(null)} 
+        deal={viewingDeal} 
+      />
+
       {/* Edit Modal */}
       <EditDealModal 
         isOpen={!!editingDeal} 
@@ -350,7 +358,7 @@ const DealsInventoryTable = ({ searchQuery }) => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-[#EBEBEB]">
-                  <th className="py-4 px-6 text-sm font-medium text-[#6A7282] font-normal">Item Details</th>
+                  <th className="py-4 px-6 text-sm font-medium text-[#6A7282] font-normal min-w-[320px]">Item Details</th>
                   <th className="py-4 px-6 text-sm font-medium text-[#6A7282] font-normal">Store</th>
                   <th className="py-4 px-6 text-sm font-medium text-[#6A7282] font-normal">Retail</th>
                   <th className="py-4 px-6 text-sm font-medium text-[#6A7282] font-normal">Coupon</th>
@@ -363,7 +371,11 @@ const DealsInventoryTable = ({ searchQuery }) => {
               <tbody className="divide-y divide-[#EBEBEB]">
                 {deals.map((deal) => {
                   return (
-                    <tr key={deal._id} className="hover:bg-[#F9FAFB] transition-colors">
+                    <tr 
+                      key={deal._id} 
+                      className="hover:bg-[#F9FAFB] transition-colors cursor-pointer"
+                      onClick={() => setViewingDeal(deal)}
+                    >
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
                           <img src={deal.productImageUrl || 'https://via.placeholder.com/80'} alt={deal.productName} className="w-10 h-10 rounded bg-[#EBEBEB] object-cover" />
@@ -374,16 +386,16 @@ const DealsInventoryTable = ({ searchQuery }) => {
                         </div>
                       </td>
                       <td className="py-4 px-6 text-[14px] text-[#0A0A0A] font-medium">{deal.storeName || deal.store || '—'}</td>
-                      <td className="py-4 px-6 text-[14px] text-[#0A0A0A]">${deal.retailPrice?.toFixed(2) || '0.00'}</td>
-                      <td className="py-4 px-6 text-[14px] font-medium text-[#00A152]">-${deal.couponAmount?.toFixed(2) || '0.00'}</td>
+                      <td className="py-4 px-6 text-[14px] text-[#0A0A0A]">${formatPrice(deal.retailPrice || 0)}</td>
+                      <td className="py-4 px-6 text-[14px] font-medium text-[#00A152]">-${formatPrice(deal.couponAmount || 0)}</td>
                       <td className="py-4 px-6 text-[14px] font-medium text-[#00A152]">
                         {deal.rewardName ? (
                           <div className="flex flex-col">
                             <span className="text-[#00A152]">{deal.rewardName}</span>
-                            <span className="text-[#00A152]">${deal.rewardAmount?.toFixed(2) || '0.00'}</span>
+                            <span className="text-[#00A152]">${formatPrice(deal.rewardAmount || 0)}</span>
                           </div>
                         ) : deal.rewardAmount ? (
-                          `$${deal.rewardAmount.toFixed(2)}`
+                          `$${formatPrice(deal.rewardAmount || 0)}`
                         ) : (
                           '—'
                         )}
@@ -397,7 +409,7 @@ const DealsInventoryTable = ({ searchQuery }) => {
                       <td className="py-4 px-6 w-[120px]">
                         <div className="flex items-center justify-center gap-1">
                           <button 
-                            onClick={() => setEditingDeal(deal)}
+                            onClick={(e) => { e.stopPropagation(); setEditingDeal(deal); }}
                             className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors" 
                             title="Edit"
                           >
@@ -405,7 +417,7 @@ const DealsInventoryTable = ({ searchQuery }) => {
                           </button>
                           {deal.isArchived ? (
                             <button 
-                              onClick={() => setUnarchivingDeal(deal)}
+                              onClick={(e) => { e.stopPropagation(); setUnarchivingDeal(deal); }}
                               className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors" 
                               title="Unarchive"
                             >
@@ -413,7 +425,7 @@ const DealsInventoryTable = ({ searchQuery }) => {
                             </button>
                           ) : (
                             <button 
-                              onClick={() => setArchivingDeal(deal)}
+                              onClick={(e) => { e.stopPropagation(); setArchivingDeal(deal); }}
                               className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors" 
                               title="Archive"
                             >
@@ -421,7 +433,7 @@ const DealsInventoryTable = ({ searchQuery }) => {
                             </button>
                           )}
                           <button 
-                            onClick={() => setDeletingDeal(deal)}
+                            onClick={(e) => { e.stopPropagation(); setDeletingDeal(deal); }}
                             className="p-2 text-[#B00020] hover:text-red-700 transition-colors" 
                             title="Delete"
                           >
