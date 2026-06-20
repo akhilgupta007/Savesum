@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import ChangePasswordModal from './ChangePasswordModal';
 import { useGetProfile, useUpdateProfile } from '../hooks/useProfile';
-import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader';
+import Skeleton from '@/components/shared/Skeleton/Skeleton';
 
 const profileSchema = z.object({
   displayName: z.string().min(1, 'Full Name is required'),
@@ -70,8 +70,18 @@ const ProfileSettings = () => {
 
   if (isFetching) {
     return (
-      <div className="bg-white border border-[#EBEBEB] rounded-xl overflow-hidden">
-        <UniversalLoader />
+      <div className="bg-white border border-[#EBEBEB] rounded-xl p-8 font-inter">
+        <h2 className="text-[15px] font-semibold text-[#1A1A1A] mb-8 tracking-wide">
+          PROFILE SETTINGS
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6 mb-8">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="flex flex-col gap-2.5">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-12 w-full rounded-lg" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

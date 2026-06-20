@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader';
+import Skeleton from '@/components/shared/Skeleton/Skeleton';
 import { fetchDealById } from '../services/deals.service';
 
 const StatusBadge = ({ status }) => {
@@ -30,7 +31,12 @@ const StatusBadge = ({ status }) => {
 };
 
 const ViewDealModal = ({ isOpen, onClose, deal }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
   const dealId = deal?.dealId || deal?._id || deal?.id;
+
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [dealId]);
 
   const {
     data: dealDetailsResponse,
@@ -102,11 +108,16 @@ const ViewDealModal = ({ isOpen, onClose, deal }) => {
         <div className="p-8 flex flex-col gap-6 overflow-y-auto flex-1">
           {/* Top section with Image and primary info */}
           <div className="flex gap-6 items-start border-b border-[#EBEBEB] pb-6">
-            <div className="w-[120px] h-[120px] bg-[#F9FAFB] rounded-xl overflow-hidden flex-shrink-0 border border-[#EBEBEB]">
+            <div className="relative w-[120px] h-[120px] bg-[#F9FAFB] rounded-xl overflow-hidden flex-shrink-0 border border-[#EBEBEB]">
+              {!imageLoaded && (
+                <Skeleton className="absolute inset-0 w-full h-full" />
+              )}
               <img 
                 src={dealDetails?.productImageUrl || "https://images.unsplash.com/photo-1584308666744-24d5e4b6e58b?w=120&h=120&fit=crop"} 
                 alt="Product" 
-                className="w-full h-full object-cover"
+                className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageLoaded(true)}
               />
             </div>
             <div className="flex flex-col gap-2 pt-2">
@@ -132,8 +143,7 @@ const ViewDealModal = ({ isOpen, onClose, deal }) => {
             <div className="flex flex-col gap-1">
               <span className="text-[12px] font-semibold text-[#6A7282] uppercase tracking-wider">Reward</span>
               <span className="text-[15px] font-medium text-[#00A152]">
-                {dealDetails?.rewardName ? `${dealDetails.rewardName} ` : ''}
-                {dealDetails?.rewardAmount ? `($${Number(dealDetails.rewardAmount).toFixed(2)})` : (!dealDetails?.rewardName ? '—' : '')}
+                {dealDetails?.rewardAmount ? `$${Number(dealDetails.rewardAmount).toFixed(2)}` : '—'}
               </span>
             </div>
 

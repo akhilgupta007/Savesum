@@ -17,6 +17,8 @@ import HelpCenterPage from '@/features/help/pages/HelpCenterPage'
 import SettingsPage from '@/features/settings/pages/SettingsPage'
 import ForgotPasswordPage from '@/features/auth/pages/ForgotPasswordPage'
 
+import NotFoundPage from '@/components/shared/NotFound/NotFoundPage'
+
 const router = createBrowserRouter([
   { path: '/', element: <Navigate to={ROUTES.DASHBOARD} replace /> },
 
@@ -43,7 +45,7 @@ const router = createBrowserRouter([
     ],
   },
 
-  { path: '*', element: <div>404 — Page not found</div> },
+  { path: '*', element: <NotFoundPage /> },
 ])
 
 export const AppRouter = () => (

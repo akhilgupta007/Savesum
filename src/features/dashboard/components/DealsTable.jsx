@@ -4,7 +4,8 @@ import dayjs from 'dayjs';
 import EditDealModal from '@/features/deals/components/EditDealModal';
 import ConfirmationModal from '@/features/deals/components/ConfirmationModal';
 import FiltersModal from '@/features/deals/components/FiltersModal';
-import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader';
+import ViewDealModal from '@/features/deals/components/ViewDealModal';
+import TableSkeleton from '@/components/shared/Skeleton/TableSkeleton';
 import { useDeals } from '@/features/deals/hooks/useDeals';
 import { useUpdateDeal } from '@/features/deals/hooks/useUpdateDeal';
 import { useDeleteDeal } from '@/features/deals/hooks/useDeleteDeal';
@@ -54,6 +55,7 @@ const DealsTable = () => {
   const [archivingDeal, setArchivingDeal] = useState(null);
   const [unarchivingDeal, setUnarchivingDeal] = useState(null);
   const [deletingDeal, setDeletingDeal]   = useState(null);
+  const [viewingDeal, setViewingDeal]     = useState(null);
   const [isFilterOpen, setIsFilterOpen]   = useState(false);
   const [searchQuery, setSearchQuery]     = useState('');
   const [page, setPage]                   = useState(1);
@@ -123,6 +125,7 @@ const DealsTable = () => {
           setPage(1);
         }}
       />
+      <ViewDealModal isOpen={!!viewingDeal} onClose={() => setViewingDeal(null)} deal={viewingDeal} />
       <EditDealModal isOpen={!!editingDeal} onClose={() => setEditingDeal(null)} deal={editingDeal} />
       <ConfirmationModal
         isOpen={!!archivingDeal}
@@ -186,7 +189,7 @@ const DealsTable = () => {
       {/* Table Body */}
       <div className="overflow-x-auto w-full min-h-[300px]">
         {isLoading ? (
-          <UniversalLoader />
+          <TableSkeleton columns={8} rows={8} />
         ) : deals.length === 0 ? (
           <div className="flex items-center justify-center h-[300px] text-[#6A7282]">No deals found.</div>
         ) : (
@@ -205,7 +208,11 @@ const DealsTable = () => {
             </thead>
             <tbody className="divide-y divide-[#EBEBEB]">
               {deals.map((deal) => (
-                <tr key={deal._id} className="hover:bg-[#F9FAFB] transition-colors">
+                <tr 
+                  key={deal._id} 
+                  className="hover:bg-[#F9FAFB] transition-colors cursor-pointer"
+                  onClick={() => setViewingDeal(deal)}
+                >
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-3">
                       <img
@@ -240,7 +247,7 @@ const DealsTable = () => {
                   <td className="py-4 px-6">
                     <StatusBadge status={deal.computedStatus} />
                   </td>
-                  <td className="py-4 px-6 w-[120px]">
+                  <td className="py-4 px-6 w-[120px]" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-center gap-1">
                       <button
                         onClick={() => setEditingDeal(deal)}

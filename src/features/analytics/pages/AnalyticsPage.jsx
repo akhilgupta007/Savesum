@@ -3,7 +3,7 @@ import AnalyticsHeader from '../components/AnalyticsHeader';
 import StatCard from '../components/StatCard';
 import MostUsedDeals from '../components/MostUsedDeals';
 import { useAnalyticsStats } from '../hooks/useAnalyticsStats';
-import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader';
+import Skeleton from '@/components/shared/Skeleton/Skeleton';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
 import { downloadCsv } from '@/utils/exportCsv';
@@ -115,7 +115,16 @@ const AnalyticsPage = () => {
     return (
       <div className="flex flex-col w-full max-w-full pb-8">
         <AnalyticsHeader onExport={handleExport} />
-        <UniversalLoader />
+        {/* Skeleton Stat Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-6">
+          <Skeleton className="h-[140px] rounded-2xl w-full bg-white border border-[#EBEBEB] shadow-[0_2px_4px_rgba(0,0,0,0.02)]" />
+          <Skeleton className="h-[140px] rounded-2xl w-full bg-white border border-[#EBEBEB] shadow-[0_2px_4px_rgba(0,0,0,0.02)]" />
+          <Skeleton className="h-[140px] rounded-2xl w-full bg-white border border-[#EBEBEB] shadow-[0_2px_4px_rgba(0,0,0,0.02)]" />
+        </div>
+        {/* Skeleton Table Container */}
+        <div className="w-full">
+          <Skeleton className="h-[400px] rounded-xl w-full bg-white border border-[#EBEBEB]" />
+        </div>
       </div>
     );
   }

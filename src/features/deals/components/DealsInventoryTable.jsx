@@ -10,7 +10,7 @@ import FiltersModal from './FiltersModal';
 import { useDeals } from '../hooks/useDeals';
 import { useUpdateDeal } from '../hooks/useUpdateDeal';
 import { useDeleteDeal } from '../hooks/useDeleteDeal';
-import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader';
+import TableSkeleton from '@/components/shared/Skeleton/TableSkeleton';
 import { fetchDeals } from '../services/deals.service';
 import toast from 'react-hot-toast';
 import { downloadCsv } from '@/utils/exportCsv';
@@ -351,7 +351,7 @@ const DealsInventoryTable = ({ searchQuery }) => {
       <div className="bg-white rounded-xl border border-[#EBEBEB] shadow-[0_2px_4px_rgba(0,0,0,0.02)] w-full overflow-hidden">
         <div className="overflow-x-auto w-full min-h-[300px]">
           {isLoading ? (
-            <UniversalLoader />
+            <TableSkeleton columns={8} rows={8} />
           ) : deals.length === 0 ? (
              <div className="flex items-center justify-center h-[300px] text-[#6A7282]">No deals found.</div>
           ) : (

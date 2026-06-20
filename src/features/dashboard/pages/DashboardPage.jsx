@@ -3,7 +3,7 @@ import DashboardLayout from '@/components/Layout/DashboardLayout';
 import StatCard from '../components/StatCard';
 import DealsTable from '../components/DealsTable';
 import { useDashboardStats } from '../hooks/useDashboardStats';
-import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader';
+import Skeleton from '@/components/shared/Skeleton/Skeleton';
 
 const DashboardPage = () => {
   const { data: statsResponse, isLoading } = useDashboardStats();
@@ -16,8 +16,10 @@ const DashboardPage = () => {
       </div>
       
       {isLoading ? (
-        <div className="h-[150px] flex items-center justify-center bg-white rounded-xl border border-[#EBEBEB]">
-          <UniversalLoader />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Skeleton className="h-[140px] rounded-2xl w-full bg-white border border-[#EBEBEB] shadow-[0_2px_4px_rgba(0,0,0,0.02)]" />
+          <Skeleton className="h-[140px] rounded-2xl w-full bg-white border border-[#EBEBEB] shadow-[0_2px_4px_rgba(0,0,0,0.02)]" />
+          <Skeleton className="h-[140px] rounded-2xl w-full bg-white border border-[#EBEBEB] shadow-[0_2px_4px_rgba(0,0,0,0.02)]" />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

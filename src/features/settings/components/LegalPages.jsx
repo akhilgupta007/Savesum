@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Edit2 } from 'lucide-react';
 import LegalPageModal from './LegalPageModal';
 import { usePrivacyPolicy, useTerms } from '../hooks/useLegalPages';
-import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader';
+import TableSkeleton from '@/components/shared/Skeleton/TableSkeleton';
 
 const LegalPages = () => {
   const [activeModal, setActiveModal] = useState(null); // activeModal is now the full page object
@@ -40,7 +40,7 @@ const LegalPages = () => {
     return (
       <div className="bg-white border border-[#EBEBEB] rounded-2xl p-8 shadow-sm font-inter">
         <h2 className="text-[14px] font-bold text-[#0A0A0A] uppercase tracking-wide mb-8">LEGAL PAGES</h2>
-        <UniversalLoader />
+        <TableSkeleton columns={4} rows={2} />
       </div>
     );
   }
