@@ -10,7 +10,7 @@ const DashboardPage = () => {
   const stats = statsResponse?.data;
 
   return (
-    <div className="flex flex-col gap-8 max-w-[1200px] mx-auto w-full">
+    <div className="flex flex-col gap-8 w-full max-w-full pb-8">
       <div className="flex items-center justify-between">
         <h1 className="text-[24px] font-semibold text-[#0A0A0A]">Admin Deal Manager</h1>
       </div>

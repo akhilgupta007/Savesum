@@ -1,3 +1,4 @@
+import React, { Suspense } from 'react';
 import { Navigate, Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import DashboardLayout from '@/components/Layout/DashboardLayout';
@@ -16,7 +17,10 @@ const PrivateRoute = () => {
     <DashboardLayout>
       <ScrollRestoration />
       <div className="w-full h-full">
-        <Outlet />
+        {/* We use an empty div as fallback so that the user only sees the specific page's Skeleton loader */}
+        <Suspense fallback={<div className="w-full min-h-screen"></div>}>
+          <Outlet />
+        </Suspense>
       </div>
     </DashboardLayout>
   );
