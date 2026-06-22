@@ -50,6 +50,86 @@ const getDealStatus = (deal, nowMs) => {
   return 'Active';
 };
 
+const DealsTableRow = React.memo(({ deal, onView, onEdit, onArchive, onUnarchive, onDelete }) => {
+  return (
+    <tr 
+      className="hover:bg-[#F9FAFB] transition-colors cursor-pointer"
+      onClick={() => onView(deal)}
+    >
+      <td className="py-4 px-6">
+        <div className="flex items-center gap-3">
+          <img
+            src={deal.productImageUrl || 'https://via.placeholder.com/80'}
+            alt={deal.productName}
+            loading="lazy"
+            className="w-10 h-10 rounded bg-[#EBEBEB] object-cover"
+          />
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[14px] font-medium text-[#0A0A0A]">{deal.productName}</span>
+            <span className="text-[12px] text-[#6A7282]">UPC: {deal.upcCode}</span>
+          </div>
+        </div>
+      </td>
+      <td className="py-4 px-6 text-[14px] text-[#0A0A0A] font-medium">{deal.storeName || deal.store || '—'}</td>
+      <td className="py-4 px-6 text-[14px] text-[#0A0A0A]">${deal.retailPrice?.toFixed(2) || '0.00'}</td>
+      <td className="py-4 px-6 text-[14px] font-medium text-[#00A152]">-${deal.couponAmount?.toFixed(2) || '0.00'}</td>
+      <td className="py-4 px-6 text-[14px] font-medium text-[#00A152]">
+        {deal.rewardName ? (
+          <div className="flex flex-col">
+            <span className="text-[#00A152]">{deal.rewardName}</span>
+            <span className="text-[#00A152]">${deal.rewardAmount?.toFixed(2) || '0.00'}</span>
+          </div>
+        ) : deal.rewardAmount ? (
+          `$${deal.rewardAmount.toFixed(2)}`
+        ) : (
+          '—'
+        )}
+      </td>
+      <td className={`py-4 px-6 text-[14px] whitespace-nowrap ${deal.isExpiryRed ? 'text-[#B00020]' : 'text-[#0A0A0A]'}`}>
+        {dayjs(deal.endDate).format('DD-MM-YYYY')}
+      </td>
+      <td className="py-4 px-6">
+        <StatusBadge status={deal.computedStatus} />
+      </td>
+      <td className="py-4 px-6 w-[120px]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-center gap-1">
+          <button
+            onClick={() => onEdit(deal)}
+            className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors"
+            title="Edit"
+          >
+            <EditIconCustom />
+          </button>
+          {deal.isArchived ? (
+            <button
+              onClick={() => onUnarchive(deal)}
+              className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors"
+              title="Unarchive"
+            >
+              <ArchiveRestore size={20} strokeWidth={1.5} />
+            </button>
+          ) : (
+            <button
+              onClick={() => onArchive(deal)}
+              className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors"
+              title="Archive"
+            >
+              <ArchiveIconCustom />
+            </button>
+          )}
+          <button
+            onClick={() => onDelete(deal)}
+            className="p-2 text-[#B00020] hover:text-red-700 transition-colors"
+            title="Delete"
+          >
+            <Trash2 size={20} strokeWidth={1.5} />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+});
+
 const DealsTable = () => {
   const [editingDeal, setEditingDeal]     = useState(null);
   const [archivingDeal, setArchivingDeal] = useState(null);
@@ -208,81 +288,15 @@ const DealsTable = () => {
             </thead>
             <tbody className="divide-y divide-[#EBEBEB]">
               {deals.map((deal) => (
-                <tr 
-                  key={deal._id} 
-                  className="hover:bg-[#F9FAFB] transition-colors cursor-pointer"
-                  onClick={() => setViewingDeal(deal)}
-                >
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={deal.productImageUrl || 'https://via.placeholder.com/80'}
-                        alt={deal.productName}
-                        className="w-10 h-10 rounded bg-[#EBEBEB] object-cover"
-                      />
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-[14px] font-medium text-[#0A0A0A]">{deal.productName}</span>
-                        <span className="text-[12px] text-[#6A7282]">UPC: {deal.upcCode}</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 text-[14px] text-[#0A0A0A] font-medium">{deal.storeName || deal.store || '—'}</td>
-                  <td className="py-4 px-6 text-[14px] text-[#0A0A0A]">${deal.retailPrice?.toFixed(2) || '0.00'}</td>
-                  <td className="py-4 px-6 text-[14px] font-medium text-[#00A152]">-${deal.couponAmount?.toFixed(2) || '0.00'}</td>
-                  <td className="py-4 px-6 text-[14px] font-medium text-[#00A152]">
-                    {deal.rewardName ? (
-                      <div className="flex flex-col">
-                        <span className="text-[#00A152]">{deal.rewardName}</span>
-                        <span className="text-[#00A152]">${deal.rewardAmount?.toFixed(2) || '0.00'}</span>
-                      </div>
-                    ) : deal.rewardAmount ? (
-                      `$${deal.rewardAmount.toFixed(2)}`
-                    ) : (
-                      '—'
-                    )}
-                  </td>
-                  <td className={`py-4 px-6 text-[14px] whitespace-nowrap ${deal.isExpiryRed ? 'text-[#B00020]' : 'text-[#0A0A0A]'}`}>
-                    {dayjs(deal.endDate).format('DD-MM-YYYY')}
-                  </td>
-                  <td className="py-4 px-6">
-                    <StatusBadge status={deal.computedStatus} />
-                  </td>
-                  <td className="py-4 px-6 w-[120px]" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex items-center justify-center gap-1">
-                      <button
-                        onClick={() => setEditingDeal(deal)}
-                        className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors"
-                        title="Edit"
-                      >
-                        <EditIconCustom />
-                      </button>
-                      {deal.isArchived ? (
-                        <button
-                          onClick={() => setUnarchivingDeal(deal)}
-                          className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors"
-                          title="Unarchive"
-                        >
-                          <ArchiveRestore size={20} strokeWidth={1.5} />
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => setArchivingDeal(deal)}
-                          className="p-2 text-[#6A7282] hover:text-[#0A0A0A] transition-colors"
-                          title="Archive"
-                        >
-                          <ArchiveIconCustom />
-                        </button>
-                      )}
-                      <button
-                        onClick={() => setDeletingDeal(deal)}
-                        className="p-2 text-[#B00020] hover:text-red-700 transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 size={20} strokeWidth={1.5} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                <DealsTableRow
+                  key={deal._id}
+                  deal={deal}
+                  onView={setViewingDeal}
+                  onEdit={setEditingDeal}
+                  onArchive={setArchivingDeal}
+                  onUnarchive={setUnarchivingDeal}
+                  onDelete={setDeletingDeal}
+                />
               ))}
             </tbody>
           </table>

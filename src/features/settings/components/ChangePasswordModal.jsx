@@ -6,7 +6,7 @@ import { useChangePassword } from '../hooks/useProfile';
 import { Loader2 } from 'lucide-react';
 
 const passwordSchema = z.object({
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string().min(1, 'Password is required'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",

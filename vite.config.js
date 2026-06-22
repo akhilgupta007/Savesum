@@ -20,6 +20,8 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
           query: ['@tanstack/react-query'],
+          framer: ['framer-motion'],
+          lucide: ['lucide-react'],
         },
       },
     },
