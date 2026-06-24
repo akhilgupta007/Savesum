@@ -57,15 +57,11 @@ const ProfileSettings = () => {
   };
 
   const handleClear = () => {
-    if (profileData) {
-      reset({
-        displayName: profileData.displayName || '',
-        email: profileData.email || '',
-        phoneNumber: profileData.phoneNumber || '',
-      });
-    } else {
-      reset();
-    }
+    reset({
+      displayName: '',
+      email: '',
+      phoneNumber: '',
+    });
   };
 
   if (isFetching) {

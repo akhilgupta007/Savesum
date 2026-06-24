@@ -9,7 +9,9 @@ import toast from 'react-hot-toast';
 import { downloadCsv } from '@/utils/exportCsv';
 
 const AnalyticsPage = () => {
-  const { data: stats, isLoading, isError } = useAnalyticsStats();
+  const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
+
+  const { data: stats, isLoading: isStatsLoading, isError } = useAnalyticsStats();
   const [currentFilters, setCurrentFilters] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -100,9 +102,7 @@ const AnalyticsPage = () => {
         case 'Newest first':
           filtered.sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)));
           break;
-        case 'Expiring Soon':
-          filtered.sort((a, b) => dayjs(a.endDate).diff(dayjs(b.endDate)));
-          break;
+
         default:
           break;
       }
@@ -110,6 +110,8 @@ const AnalyticsPage = () => {
 
     return filtered;
   }, [stats?.mostUsedDeals, currentFilters, searchQuery]);
+
+  const isLoading = isStatsLoading;
 
   if (isLoading) {
     return (
@@ -146,8 +148,10 @@ const AnalyticsPage = () => {
         onExport={handleExport}
         onFilterChange={setCurrentFilters}
         onSearchChange={setSearchQuery}
+        onDateRangeChange={setDateRange}
         currentFilters={currentFilters}
         currentSearch={searchQuery}
+        currentDateRange={dateRange}
       />
       
       {/* Stat Cards Row */}

@@ -44,7 +44,7 @@ const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
   const selectedStoreNames = selectedStoreIds.map(id => storesList.find(s => s._id === id)?.name || id);
 
   const hasActiveFilters = selectedStoreIds.length > 0 || !!startDate || !!endDate || !!sortBy;
-  const activeFilterCount = selectedStoreIds.length + (startDate ? 1 : 0) + (endDate ? 1 : 0) + (sortBy ? 1 : 0);
+  const activeFilterCount = selectedStoreIds.length + ((startDate || endDate) ? 1 : 0) + (sortBy ? 1 : 0);
 
   // Clears ALL local state, tells parent to reset to null (no filters), closes modal
   const clearAll = () => {
@@ -95,7 +95,7 @@ const FiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => {
           <div className="flex items-center gap-4 px-6 py-4 border border-[#EBEBEB] rounded-xl">
             <span className="text-[13px] font-bold text-[#0A0A0A] uppercase tracking-wider min-w-[80px]">Sort By</span>
             <div className="flex flex-wrap gap-3">
-              {['Value (high - low)', 'Value (low - high)', 'Newest first', 'Expiring Soon'].map(sortOption => (
+              {['Value (high - low)', 'Value (low - high)', 'Newest first'].map(sortOption => (
                 <button 
                   key={sortOption}
                   onClick={() => setSortBy(sortOption)}

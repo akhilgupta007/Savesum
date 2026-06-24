@@ -106,7 +106,7 @@ const AnalyticsFiltersModal = ({ isOpen, onClose, currentFilters, onApply }) => 
           <div className="flex items-center gap-4 px-6 py-4 border border-[#EBEBEB] rounded-xl">
             <span className="text-[13px] font-bold text-[#0A0A0A] uppercase tracking-wider min-w-[80px]">Sort By</span>
             <div className="flex flex-wrap gap-3">
-              {['Value (high - low)', 'Value (low - high)', 'Newest first', 'Expiring Soon'].map(sortOption => (
+              {['Value (high - low)', 'Value (low - high)', 'Newest first'].map(sortOption => (
                 <button 
                   key={sortOption}
                   onClick={() => setSortBy(sortOption)}

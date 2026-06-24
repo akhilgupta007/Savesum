@@ -8,6 +8,7 @@ import CouponTypeSelect from './CouponTypeSelect';
 import dayjs from 'dayjs';
 import UniversalLoader from '@/components/shared/UniversalLoader/UniversalLoader';
 import { fetchDealById } from '../services/deals.service';
+import toast from 'react-hot-toast';
 
 const formatCouponTypeForForm = (couponType) => {
   if (couponType === 'percentage' || couponType === 'flat') return 'Custom';
@@ -21,6 +22,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
   const [formData, setFormData] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [savingType, setSavingType] = useState(null);
 
   const dealId = deal?._id || deal?.id;
 
@@ -73,6 +75,15 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
   };
 
   const handleSubmit = (isDraft) => {
+    if (formData.retailPrice !== undefined && Number(formData.retailPrice) <= 0) {
+      toast.error('Retail Price must be greater than 0');
+      return;
+    }
+
+    if (isDraft === true) setSavingType('draft');
+    else if (isDraft === false) setSavingType('publish');
+    else setSavingType('update');
+
     const data = new FormData();
     Object.keys(formData).forEach(key => {
       if (key === 'store') return; // Handled separately below
@@ -110,7 +121,8 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
     updateDeal({ id: deal._id || deal.id, formData: data }, {
       onSuccess: () => {
         onClose();
-      }
+      },
+      onSettled: () => setSavingType(null)
     });
   };
 
@@ -200,9 +212,16 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
                   value={formData.retailPrice}
                   onChange={handleInputChange}
                   placeholder="0.00"
-                  className="w-full pl-8 pr-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
+                  className={`w-full pl-8 pr-4 py-2.5 border rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none ${
+                    formData.retailPrice !== undefined && formData.retailPrice !== '' && Number(formData.retailPrice) <= 0 
+                    ? 'border-[#B00020] focus:border-[#B00020]' 
+                    : 'border-[#EBEBEB] focus:border-[#005EF8]'
+                  }`}
                 />
               </div>
+              {formData.retailPrice !== undefined && formData.retailPrice !== '' && Number(formData.retailPrice) <= 0 && (
+                <span className="text-[12px] text-[#B00020] mt-1">Retail Price must be greater than 0</span>
+              )}
             </div>
           </div>
 
@@ -338,14 +357,14 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
                 disabled={isUpdating}
                 className="flex-1 py-3 bg-white border border-[#005EF8] text-[#005EF8] rounded-xl text-[14px] font-semibold hover:bg-blue-50 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {isUpdating ? 'Saving...' : 'Save as Draft'}
+                {isUpdating && savingType === 'draft' ? 'Saving...' : 'Save as Draft'}
               </button>
               <button 
                 onClick={() => handleSubmit(false)}
                 disabled={isUpdating}
                 className="flex-1 py-3 bg-[#005EF8] text-white rounded-xl text-[14px] font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {isUpdating ? 'Publishing...' : 'Publish Deal'}
+                {isUpdating && savingType === 'publish' ? 'Publishing...' : 'Publish Deal'}
               </button>
             </>
           ) : (
@@ -354,7 +373,7 @@ const EditDealModal = ({ isOpen, onClose, deal }) => {
               disabled={isUpdating}
               className="flex-1 py-3 bg-[#005EF8] text-white rounded-xl text-[14px] font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {isUpdating ? 'Updating...' : 'Update Deal'}
+              {isUpdating && savingType === 'update' ? 'Updating...' : 'Update Deal'}
             </button>
           )}
         </div>

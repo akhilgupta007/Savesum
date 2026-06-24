@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { useUpdateHelpQuestion } from '../hooks/useHelpQuestions';
+import toast from 'react-hot-toast';
 
 const EditHelpQuestionModal = ({ isOpen, onClose, question }) => {
   const [title, setTitle] = useState('');
@@ -40,7 +41,12 @@ const EditHelpQuestionModal = ({ isOpen, onClose, question }) => {
 
   const handleSave = (status) => {
     if (!title.trim() || answers.some(a => !a.head.trim() || !a.body.trim())) {
-      alert('Please fill out all fields.');
+      toast.error('Please fill out all fields.');
+      return;
+    }
+
+    if (!/[a-zA-Z0-9]/.test(title)) {
+      toast.error('Question title cannot consist of only special characters.');
       return;
     }
     

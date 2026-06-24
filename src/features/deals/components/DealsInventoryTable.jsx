@@ -65,9 +65,9 @@ const getDealStatus = (deal, nowMs) => {
   if (endMs < nowMs) return 'Expired';
   if (startMs > nowMs) return 'Upcoming';
   
-  // Expiring in less than 24h
+  // Expiring in less than 72h
   const hoursLeft = (endMs - nowMs) / (1000 * 60 * 60);
-  if (hoursLeft > 0 && hoursLeft <= 24) return 'Expiring';
+  if (hoursLeft > 0 && hoursLeft <= 72) return 'Expiring';
   
   return 'Active';
 };
@@ -89,7 +89,7 @@ const getSort = (sortBy) => {
     case 'Value (high - low)': return { field: 'value', order: 'desc' };
     case 'Value (low - high)': return { field: 'value', order: 'asc' };
     case 'Newest first': return { field: 'createdAt', order: 'desc' };
-    case 'Expiring Soon': return { field: 'endDate', order: 'asc' };
+
     default: return undefined;
   }
 };
@@ -129,8 +129,25 @@ const DealsTableRow = React.memo(({ deal, onView, onEdit, onArchive, onUnarchive
           '—'
         )}
       </td>
-      <td className={`py-4 px-6 text-[14px] whitespace-nowrap ${deal.isExpiryRed ? 'text-[#B00020]' : 'text-[#0A0A0A]'}`}>
-        {dayjs(deal.endDate).format('DD-MM-YYYY')}
+      <td className="py-4 px-6 whitespace-nowrap">
+        <div className="flex flex-col">
+          <span className={`text-[14px] ${deal.isExpiryRed ? 'text-[#B00020]' : 'text-[#0A0A0A]'}`}>
+            {dayjs(deal.endDate).format('DD-MM-YYYY')}
+          </span>
+          {(() => {
+            if (deal.computedStatus !== 'Expiring') return null;
+            const now = dayjs();
+            const end = dayjs(deal.endDate);
+            if (end.isBefore(now)) return null;
+            const days = end.diff(now, 'day');
+            if (days > 0) return <span className="text-[12px] text-[#6A7282] mt-0.5">{days} day{days > 1 ? 's' : ''} left</span>;
+            const hours = end.diff(now, 'hour');
+            if (hours > 0) return <span className="text-[12px] text-[#B45309] mt-0.5">{hours} hr{hours > 1 ? 's' : ''} left</span>;
+            const mins = end.diff(now, 'minute');
+            if (mins > 0) return <span className="text-[12px] text-[#B00020] mt-0.5">{mins} min left</span>;
+            return <span className="text-[12px] text-[#B00020] mt-0.5">&lt; 1 min left</span>;
+          })()}
+        </div>
       </td>
       <td className="py-4 px-6">
         <StatusBadge status={deal.computedStatus} />
@@ -194,6 +211,7 @@ const DealsInventoryTable = ({ searchQuery }) => {
 
   const apiFilters = {
     status: mapTabToStatus(activeTab),
+    ...(activeTab !== 'All' && activeTab !== 'Archived' ? { isArchived: false } : {}),
     ...(modalFilters && {
       ...(activeStores.length > 0 && { stores: activeStores }),
       dateRange: (modalFilters.startDate || modalFilters.endDate) ? {
@@ -237,7 +255,14 @@ const DealsInventoryTable = ({ searchQuery }) => {
   
   const deals = useMemo(() => {
     const nowMs = Date.now(); // Absolute UTC milliseconds independent of local timezone
-    return rawDeals.map(deal => {
+    return rawDeals
+      .filter(deal => {
+        if (deal.isArchived) {
+          return activeTab === 'All' || activeTab === 'Archived';
+        }
+        return true;
+      })
+      .map(deal => {
       const status = getDealStatus(deal, nowMs);
       return {
         ...deal,
@@ -245,7 +270,7 @@ const DealsInventoryTable = ({ searchQuery }) => {
         isExpiryRed: status === 'Expiring' || status === 'Expired'
       };
     });
-  }, [rawDeals]);
+  }, [rawDeals, activeTab]);
   const paginationInfo = data?.pagination || { total: 0, page: 1, limit: 10, pages: 1 };
 
   const handleTabChange = (tab) => {

@@ -18,6 +18,7 @@ const CreateDealPage = () => {
   const [formData, setFormData] = useState({});
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [isPublishOpen, setIsPublishOpen] = useState(false);
+  const [savingType, setSavingType] = useState(null);
   
   // Dynamic Text State
   const [isComplete, setIsComplete] = useState(false);
@@ -87,7 +88,12 @@ const CreateDealPage = () => {
     return data;
   };
 
-  const validateDates = () => {
+  const validateForm = () => {
+    if (formData.retail !== undefined && Number(formData.retail) <= 0) {
+      toast.error('Retail Price must be greater than 0');
+      return false;
+    }
+
     if (!formData.startDate || !formData.endDate) return true;
     
     const today = new Date();
@@ -114,20 +120,24 @@ const CreateDealPage = () => {
 
   const handlePublishConfirm = () => {
     setIsPublishOpen(false);
+    setSavingType('publish');
     const data = constructApiPayload(false);
     createDeal(data, {
       onSuccess: () => {
         navigate(ROUTES.DEALS, { state: { showSuccess: 'publish' } });
-      }
+      },
+      onSettled: () => setSavingType(null)
     });
   };
 
   const handleSaveDraft = () => {
+    setSavingType('draft');
     const data = constructApiPayload(true);
     createDeal(data, {
       onSuccess: () => {
         navigate(ROUTES.DEALS, { state: { showSuccess: 'draft' } });
-      }
+      },
+      onSettled: () => setSavingType(null)
     });
   };
 
@@ -196,21 +206,21 @@ const CreateDealPage = () => {
             </button>
             <button 
               onClick={() => {
-                if (validateDates()) handleSaveDraft();
+                if (validateForm()) handleSaveDraft();
               }}
               disabled={isCreating}
               className="flex-1 lg:flex-none px-4 lg:px-6 py-2.5 text-[13px] lg:text-[14px] font-bold text-[#005EF8] bg-[#E8F0FE] hover:bg-[#D1E0FD] rounded-xl transition-colors disabled:opacity-50 whitespace-nowrap"
             >
-              {isCreating && !isPublishOpen ? 'Saving...' : 'Save Draft'}
+              {isCreating && savingType === 'draft' ? 'Saving...' : 'Save Draft'}
             </button>
             <button 
               onClick={() => {
-                if (validateDates()) setIsPublishOpen(true);
+                if (validateForm()) setIsPublishOpen(true);
               }}
               disabled={isCreating || !isComplete}
               className="flex-1 lg:flex-none px-4 lg:px-6 py-2.5 text-[13px] lg:text-[14px] font-bold text-white bg-[#005EF8] hover:bg-blue-700 rounded-xl transition-colors shadow-md disabled:opacity-50 whitespace-nowrap"
             >
-              {isCreating ? 'Publishing...' : 'Publish'}
+              {isCreating && savingType === 'publish' ? 'Publishing...' : 'Publish'}
             </button>
           </div>
         </div>

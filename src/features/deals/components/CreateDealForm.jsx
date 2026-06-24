@@ -200,9 +200,16 @@ const CreateDealForm = ({ formData, setFormData }) => {
                 value={formData.retail || ''}
                 onChange={handleInputChange}
                 placeholder="0.00"
-                className="w-full pl-8 pr-4 py-2.5 border border-[#EBEBEB] rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none focus:border-[#005EF8]"
+                className={`w-full pl-8 pr-4 py-2.5 border rounded-lg text-[14px] text-[#0A0A0A] placeholder-[#6A7282] focus:outline-none ${
+                  formData.retail !== undefined && formData.retail !== '' && Number(formData.retail) <= 0 
+                  ? 'border-[#B00020] focus:border-[#B00020]' 
+                  : 'border-[#EBEBEB] focus:border-[#005EF8]'
+                }`}
               />
             </div>
+            {formData.retail !== undefined && formData.retail !== '' && Number(formData.retail) <= 0 && (
+              <span className="text-[12px] text-[#B00020]">Retail Price must be greater than 0</span>
+            )}
           </div>
         </div>
       </div>
