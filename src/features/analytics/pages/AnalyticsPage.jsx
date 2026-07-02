@@ -146,12 +146,8 @@ const AnalyticsPage = () => {
     <div className="flex flex-col w-full max-w-full pb-8">
       <AnalyticsHeader 
         onExport={handleExport}
-        onFilterChange={setCurrentFilters}
         onSearchChange={setSearchQuery}
-        onDateRangeChange={setDateRange}
-        currentFilters={currentFilters}
         currentSearch={searchQuery}
-        currentDateRange={dateRange}
       />
       
       {/* Stat Cards Row */}

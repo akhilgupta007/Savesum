@@ -149,12 +149,7 @@ const DealsTableRow = React.memo(({ deal, onView, onEdit, onArchive, onUnarchive
 
 const getSort = (sortBy) => {
   if (!sortBy) return undefined;
-  switch (sortBy) {
-    case 'Value (high - low)': return { field: 'value', order: 'desc' };
-    case 'Value (low - high)': return { field: 'value', order: 'asc' };
-    case 'Newest first': return { field: 'createdAt', order: 'desc' };
-    default: return undefined;
-  }
+  return sortBy;
 };
 const DealsTable = () => {
   const [editingDeal, setEditingDeal]     = useState(null);
